@@ -17,6 +17,7 @@ func RunHelp() {
     // to ensure consistent layout for variable user-defined tab space
     tabspace := "  "
 
+
     // USAGE
     heading.Print("USAGE:\n")
     fmt.Printf("%s%s %s <FILE PATH>\n", tabspace,
@@ -30,5 +31,14 @@ func RunHelp() {
     
     fmt.Printf("%s%s --config     %s\n", tabspace,
     	red("streak"), gray("[PREFERENCES]"))
+
+
+    // DESCRIPTION 
+    heading.Print("\nDESCRIPTION:\n")
+
+    fmt.Printf("%sEffortlessly manage, upload, and process your ", tabspace)
+    fmt.Printf("astronomical images with\n%sAstroStreak.net. Perfect",tabspace)
+    fmt.Printf(" for astronomers and space enthusiasts who\n%sprefer",tabspace)
+    fmt.Printf(" the precision and flexibility of a terminal interface.\n")
 }
 
