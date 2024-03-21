@@ -40,5 +40,18 @@ func RunHelp() {
     fmt.Printf("astronomical images with\n%sAstroStreak.net. Perfect",tabspace)
     fmt.Printf(" for astronomers and space enthusiasts who\n%sprefer",tabspace)
     fmt.Printf(" the precision and flexibility of a terminal interface.\n")
+
+
+    // UPLOAD OPTIONS 
+    heading.Print("\nUPLOAD OPTIONS:\n")
+
+    fmt.Printf("%s--no-ai               %s\n", tabspace,
+	gray("Disallow AI training usage for uploaded images"))
+
+    fmt.Printf("%s--private             %s\n", tabspace,
+	gray("Restrict access to uploaded media files (private)"))
+
+    fmt.Printf("%s--public              %s\n", tabspace,
+	gray("Allow access to uploaded media files (public)"))
 }
 
