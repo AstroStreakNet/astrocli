@@ -16,6 +16,7 @@ func RunHelp() {
 
     // to ensure consistent layout for variable user-defined tab space
     tabspace := "  "
+    descriptionSpace := "                        "
 
 
     // USAGE
@@ -53,5 +54,54 @@ func RunHelp() {
 
     fmt.Printf("%s--public              %s\n", tabspace,
 	gray("Allow access to uploaded media files (public)"))
+
+
+    // BROWSE & DOWNLOAD FILTERS
+    heading.Print("\nFILTERS:\n")
+
+    fmt.Printf("%s--contain \"tags\"      %s\n", tabspace,
+	gray("Filter images to include only those with"))
+
+    fmt.Printf("%s%s\n", descriptionSpace, gray("specified tags"))
+
+    fmt.Printf("%s--not-contain \"tags\"  %s\n", tabspace,
+	gray("Filter images to exclude those with specified tags"))
+
+    fmt.Printf("%s--count \"count\"       %s\n", tabspace,
+	gray("Limit the number of results to retrieve"))
+
+    fmt.Printf("%s--date <dd-mm-yyyy>   %s\n", tabspace,
+	gray("Filter images by upload date."))
+
+    fmt.Printf("%s--trainable           %s\n", tabspace,
+	gray("Filter images uploaded with permissions for AI"))
+
+    fmt.Printf("%s%s\n", descriptionSpace, gray("training"))
+
+
+    // CONFIG PREFERENCES 
+    heading.Print("\nCONFIG PREFERENCES:\n")
+
+    fmt.Printf("%sdefault access {private|public} %s\n", tabspace,
+        gray("Set the default access level for images"))
+
+    fmt.Printf("%s%s        %s\n", descriptionSpace, tabspace, 
+	gray("for general viewing"))
+
+
+    fmt.Printf("%sdefault train-ai {true|false}   %s\n", tabspace,
+	gray("Specify whether you permit your media to be"))
+
+    fmt.Printf("%s%s        %s\n", descriptionSpace, tabspace, 
+	gray("used for training AI models"))
+
+    fmt.Printf("%sdefault save <path>             %s\n", tabspace,
+	gray("Set the default directory where downloaded"))
+
+    fmt.Printf("%s%s        %s\n", descriptionSpace, tabspace, 
+	gray("files will be saved"))
+
+    fmt.Printf("%saccount {login|logout}          %s\n", tabspace,
+	gray("Manage the login status of your account"))
 }
 
