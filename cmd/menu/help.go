@@ -10,8 +10,8 @@ func RunHelp() {
 
     gray   := color.New(color.FgWhite).SprintFunc()
     red    := color.New(color.FgRed).SprintFunc()
-    // yellow := color.New(color.FgHiYellow).SprintFunc()
-    // cyan   := color.New(color.FgHiCyan).SprintFunc()
+    yellow := color.New(color.FgHiYellow).SprintFunc()
+    cyan   := color.New(color.FgHiCyan).SprintFunc()
     // green  := color.New(color.FgHiGreen).SprintFunc()
 
     // to ensure consistent layout for variable user-defined tab space
@@ -103,5 +103,46 @@ func RunHelp() {
 
     fmt.Printf("%saccount {login|logout}          %s\n", tabspace,
 	gray("Manage the login status of your account"))
+
+
+    // USAGE EXAMPLE 
+    heading.Print("\nEXAMPLE USAGE:\n")
+
+    fmt.Printf("%s1. Uploads all images located in the ~/Pictures", tabspace)
+    fmt.Printf("/space Theses images will be\n %s  viewable by the ", tabspace)
+    fmt.Printf("general public but not be useds for AI training.\n")
+
+    fmt.Printf("  %s %s %s %s %s\n\n", tabspace, yellow("$"), red("streak"), 
+	gray("--public --no-ai"), cyan("~/Pictures/space/*"))
+
+
+    fmt.Printf("%s2. Retrieves and counts the images of the sun that",tabspace)
+    fmt.Printf("uploaded on the specified\n %s  date (12-04-2024 in", tabspace)
+    fmt.Printf(" this example).\n")
+
+    fmt.Printf("  %s %s %s browse %s %s %s %s %s\n\n", tabspace, 
+	yellow("$"), red("streak"), gray("--contain"), cyan("\"sun\""),
+	gray("--date"), cyan("\"20-03-2024\""), yellow("| wc -l"))
+
+
+    // fix language here
+    fmt.Printf("%s3. Downloads images uploaded on the specified date",tabspace)
+    fmt.Printf("-\n %s  20-03-2024, to ~/Pictures/train directory ",tabspace)
+    fmt.Printf("that are allowed to be used\n %s  for AI training.\n",tabspace)
+
+    fmt.Printf("  %s %s %s download %s %s\n\n", tabspace, 
+	yellow("$"), red("streak"), gray("--trainable --date"), 
+	cyan("\"20-03-2024\" ~/Pictures/train"))
+
+
+    fmt.Printf("%s4. Uploads all images with the .fits extension ", tabspace)
+    fmt.Printf("located in the ~/Pictures\n %s  directory and were", tabspace) 
+    fmt.Printf("created on the current day. Default properties, as\n ")
+    fmt.Printf("%s  configured be applied.\n", tabspace)
+
+    fmt.Printf("  %s %s %s %s %s %s %s %s %s %s | %s\n\n", tabspace, 
+	yellow("$"), yellow("find"), cyan("~/Pictures"), gray("--type"), 
+	cyan("f"), gray("--iname"), cyan("\"*.fits\""), gray("--mtime"),
+	cyan("0"), red("streak"))
 }
 
