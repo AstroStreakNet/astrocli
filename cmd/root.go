@@ -1,36 +1,69 @@
 package cmd
 
+// With no options specified, the tool will default with upload functionality.
+// Flags could be used to change the uploaded media's permissions, as in if to
+// allow them to be used for AI training or not, and if they should be viewable
+// to the general public.
+
 import (
-	"fmt"
-	"github.com/spf13/cobra"
+    "os"
+    "fmt"
+    "errors"
+    "github.com/spf13/cobra"
 )
+
+// entry point to the application 
+func Execute() {
+    if err := rootCmd.Execute(); err != nil {
+	fmt.Println(err)
+	os.Exit(1)
+    }
+}
+
+var blockAI bool
+var blockPublic bool
+var filePath []string 
 
 // rootCmd represents the root command
 var rootCmd = &cobra.Command{
-	Use:   "root",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+    Use   : "streak [flags] <file>",
+    Short : "Upload files to your AstroStreak Account",
+    Long  : `Streak:`,
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("root called")
-	},
+    // check arguments
+    Args: func(cmd *cobra.Command, args []string) error {
+	if len(args) < 1 {
+	    return errors.New("Please specify file path")
+	}
+
+	for i := 0; i < len(args); i++ {
+	    filePath = append(filePath, args[i])
+	}
+
+	return nil 
+    },
+
+    Run: func(cmd *cobra.Command, args []string) {
+	for i := 0; i < len(filePath); i ++ {
+	    // make web request
+
+	    fmt.Printf("[WebRequest] ai_perms=%t, public_perms=%t, file=%s\n",
+	    !blockAI, !blockPublic, filePath[i])
+	}
+    },
 }
 
 func init() {
-	rootCmd.AddCommand(rootCmd)
+    rootCmd.Flags().BoolVarP(&blockAI, 
+	"no-ai", "N", 
+        false, 
+	"Do not allow your images to be used for AI training",
+    )
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// rootCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+    rootCmd.Flags().BoolVarP(&blockPublic,
+	"private", "P",
+	false,
+	"Upload privately. Default Public",
+    )
 }
 
