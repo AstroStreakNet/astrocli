@@ -2,7 +2,7 @@ package main
 
 import (
     "flag"
-    "streak/cmd/menu"
+    "streak/cmd"
 )
 
 func main() {
@@ -22,20 +22,20 @@ func main() {
 
     switch {
     case callHelp:
-	menu.RunHelp()
+	cmd.RunHelp()
 
     case *callConfig:
-	menu.RunConfig()
+	cmd.RunConfig()
 
     case *callBrowse:
-	menu.RunBrowse()
+	cmd.RunBrowse()
 
     case *callDownload:
-	menu.RunDownload()
+	cmd.RunDownload()
 
     // option to call by default when no other is explicitly stated
     default:
-	menu.RunUpload()
+	cmd.RunUpload()
     }
 }
 
