@@ -1,9 +1,12 @@
-package cmd
+/* 
+With no options specified, the tool will default with upload functionality.
+ 
+Flags could be used to change the uploaded media's permissions, as in if to
+allow them to be used for AI training or not, and if they should be viewable to
+the general public.
+*/
 
-// With no options specified, the tool will default with upload functionality.
-// Flags could be used to change the uploaded media's permissions, as in if to
-// allow them to be used for AI training or not, and if they should be viewable
-// to the general public.
+package cmd
 
 import (
     "os"
@@ -28,7 +31,7 @@ var filePath []string
 var rootCmd = &cobra.Command{
     Use   : "streak [flags] <file>",
     Short : "Upload files to your AstroStreak Account",
-    Long  : `Streak:`,
+    // Long  : `Streak:`,
 
     // check arguments
     Args: func(cmd *cobra.Command, args []string) error {
@@ -65,5 +68,8 @@ func init() {
 	false,
 	"Upload privately. Default Public",
     )
+
+    rootCmd.CompletionOptions.DisableDefaultCmd = true
+    rootCmd.Flags().MarkHidden("help")
 }
 
