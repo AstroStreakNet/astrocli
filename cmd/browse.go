@@ -1,40 +1,79 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+Browse command allows user to get resultIDs for their query from the database.
 
+This option would be especially useful when trying to study uploaded data, such
+as count the percentage of results with xyz specifications out of all abc
+images.
 */
+
 package cmd
 
 import (
-	"fmt"
-
-	"github.com/spf13/cobra"
+    "fmt"
+    "github.com/spf13/cobra"
 )
+
+var contains string 
+var notContains string
+var count int 
+var getAll bool 
+var date string
+var trainable bool 
 
 // browseCmd represents the browse command
 var browseCmd = &cobra.Command{
-	Use:   "browse",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("browse called")
-	},
+    Use   : "browse [filters]",
+    Short : "Browse images based on specified criteria", 
+    Long  : `Browse images based on specified criteria such as containing or not containing certain 
+items, date, and AI training status. View latest 10 images when no flag's used.
+`,
+    
+    Run: func(cmd *cobra.Command, args []string) {
+	fmt.Printf("[WebRequest] contains=%s, notContains=%s, date=%s, num=%d",
+	    contains, notContains, date, count)
+	
+	fmt.Printf(" trainable=%t\n", trainable)
+    },
 }
 
 func init() {
-	rootCmd.AddCommand(browseCmd)
+    //parse arguments
+    browseCmd.Flags().StringVarP(&date,
+	"date", "d",
+	"12-12-2024",
+	"Get results uploaded on a specific date",
+    )
 
-	// Here you will define your flags and configuration settings.
+    browseCmd.Flags().IntVarP(&count,
+	"number", "n", 
+	10,
+	"Specify the number of results to scrape",
+    )
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// browseCmd.PersistentFlags().String("foo", "", "A help for foo")
+    browseCmd.Flags().BoolVarP(&trainable,
+	"trainable", "t",
+	false,
+	"Filter for only images permitted for AI training",
+    )
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// browseCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+    browseCmd.Flags().StringVarP(&contains,
+	"contains", "c",
+	"",
+	"Specify keywords for image descriptions",
+    )
+
+    browseCmd.Flags().StringVarP(&notContains,
+	"not-contains", "C",
+	"",
+	"Exclude keywords from image descriptions",
+    )
+    
+    browseCmd.Flags().BoolVarP(&getAll,
+	"all", "A",
+	false,
+	"Retrieve all matching results",
+    )
+
+    rootCmd.AddCommand(browseCmd)
 }
+
