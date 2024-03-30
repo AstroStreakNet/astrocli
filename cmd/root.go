@@ -35,12 +35,16 @@ var count int
 var getAll bool 
 var date string
 var trainable bool 
+var savePath string
 
 // rootCmd represents the root command
 var rootCmd = &cobra.Command{
     Use   : "streak [flags] <file>",
     Short : "Upload files to your AstroStreak Account",
-    // Long  : `Streak:`,
+    Long  :
+`Upload images to the AstroStreak database specifying AI permissions and public  
+visibility.`,
+
 
     // check arguments
     Args: func(cmd *cobra.Command, args []string) error {
@@ -56,6 +60,7 @@ var rootCmd = &cobra.Command{
     },
 
     Run: func(cmd *cobra.Command, args []string) {
+
 	for i := 0; i < len(filePath); i ++ {
 	    // make web request
 

@@ -17,9 +17,10 @@ import (
 var browseCmd = &cobra.Command{
     Use   : "browse",
     Short : "Browse images based on specified criteria", 
-    Long  : `Browse images based on specified criteria such as containing or not containing certain 
-items, date, and AI training status. View latest 10 images when no flag's used.
-    `,
+    Long  : 
+`Browse images based on specified criteria such as containing or not containing 
+certain items, date, and AI training status. View latest 10 images when no 
+flag's used.`,
 
     Run: func(cmd *cobra.Command, args []string) {
 	fmt.Printf("[WebRequest] contains=%s, notContains=%s, date=%s, num=%d",
@@ -34,19 +35,19 @@ func init() {
     browseCmd.Flags().StringVarP(&date,
 	"date", "d",
 	"12-12-2024",
-	"Get results uploaded on a specific date",
+	"Filter results by date",
     )
 
     browseCmd.Flags().IntVarP(&count,
 	"number", "n", 
 	10,
-	"Specify the number of results to scrape",
+	"Specify the number of results",
     )
 
     browseCmd.Flags().BoolVarP(&trainable,
 	"trainable", "t",
 	false,
-	"Filter for only images permitted for AI training",
+	"Filternly images permitted for AI training",
     )
 
     browseCmd.Flags().StringVarP(&contains,

@@ -13,12 +13,16 @@ import (
 
 // downloadCmd represents the download command
 var downloadCmd = &cobra.Command{
-	Use:   "download",
-	Short: "A brief description of your command",
+    Use   : "download",
+    Short : "A brief description of your command",
+    Long  : 
+`Save images from the AstroStreak Database to your local system, applying 
+filters to refine your search results. Download latest 10 images when no flag's 
+used.`,
 
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("download called")
-	},
+    Run: func(cmd *cobra.Command, args []string) {
+	fmt.Println("download called")
+    },
 }
 
 // sane options as download command 
@@ -27,19 +31,19 @@ func init() {
     downloadCmd.Flags().StringVarP(&date,
 	"date", "d",
 	"12-12-2024",
-	"Get results uploaded on a specific date",
+	"Filter results by date",
     )
 
     downloadCmd.Flags().IntVarP(&count,
 	"number", "n", 
 	10,
-	"Specify the number of results to scrape",
+	"Specify the number of results",
     )
 
     downloadCmd.Flags().BoolVarP(&trainable,
 	"trainable", "t",
 	false,
-	"Filter for only images permitted for AI training",
+	"Filter only images permitted for AI training",
     )
 
     downloadCmd.Flags().StringVarP(&contains,
@@ -62,7 +66,7 @@ func init() {
 
     downloadCmd.Flags().StringVarP(&savePath,
 	"path", "p",
-	".",
+	"",
 	"Location to save downloaded media at",
     )
 
