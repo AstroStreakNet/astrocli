@@ -23,9 +23,18 @@ func Execute() {
     }
 }
 
+// upload flags 
 var blockAI bool
 var blockPublic bool
 var filePath []string 
+
+// browse and download flags  
+var contains string 
+var notContains string
+var count int 
+var getAll bool 
+var date string
+var trainable bool 
 
 // rootCmd represents the root command
 var rootCmd = &cobra.Command{

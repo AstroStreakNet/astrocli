@@ -1,12 +1,13 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
+Works similar to browse command and supports all flags as it, however this
+extends its ability by supporting functionality to save result images on the
+local device.
 */
+
 package cmd
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -14,27 +15,57 @@ import (
 var downloadCmd = &cobra.Command{
 	Use:   "download",
 	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("download called")
 	},
 }
 
+// sane options as download command 
 func init() {
-	rootCmd.AddCommand(downloadCmd)
+    //parse arguments
+    downloadCmd.Flags().StringVarP(&date,
+	"date", "d",
+	"12-12-2024",
+	"Get results uploaded on a specific date",
+    )
 
-	// Here you will define your flags and configuration settings.
+    downloadCmd.Flags().IntVarP(&count,
+	"number", "n", 
+	10,
+	"Specify the number of results to scrape",
+    )
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// downloadCmd.PersistentFlags().String("foo", "", "A help for foo")
+    downloadCmd.Flags().BoolVarP(&trainable,
+	"trainable", "t",
+	false,
+	"Filter for only images permitted for AI training",
+    )
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// downloadCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+    downloadCmd.Flags().StringVarP(&contains,
+	"contains", "c",
+	"",
+	"Specify keywords for image descriptions",
+    )
+
+    downloadCmd.Flags().StringVarP(&notContains,
+	"not-contains", "C",
+	"",
+	"Exclude keywords from image descriptions",
+    )
+    
+    downloadCmd.Flags().BoolVarP(&getAll,
+	"all", "A",
+	false,
+	"Retrieve all matching results",
+    )
+
+    downloadCmd.Flags().StringVarP(&savePath,
+	"path", "p",
+	".",
+	"Location to save downloaded media at",
+    )
+
+    rootCmd.AddCommand(downloadCmd)
 }
+
