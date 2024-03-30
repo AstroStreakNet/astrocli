@@ -37,6 +37,10 @@ var date string
 var trainable bool 
 var savePath string
 
+// config 
+var login bool
+var logout bool
+
 // rootCmd represents the root command
 var rootCmd = &cobra.Command{
     Use   : "streak [flags] <file>",
