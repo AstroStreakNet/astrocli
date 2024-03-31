@@ -29,10 +29,10 @@ $ streak -N ~/Pictures/captures/*
 ```
 
 
-Upload all PNG files captured today located in the *"saves"* directory within the
+Upload all FITS files captured today located in the *"saves"* directory within the
 ~/Pictures.
 ```sh
-$ find ~/Pictures/saves/ -name "*.png" -type f -mtime -1 | xargs streak
+$ find ~/Pictures/saves/ -iname "*.fits" -type f -mtime -1 | xargs streak
 ```
 
 
