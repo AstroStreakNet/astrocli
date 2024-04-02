@@ -1,8 +1,6 @@
 module streak
 
 go 1.22.1
-<<<<<<< HEAD
-=======
 
 require (
 	github.com/fatih/color v1.16.0
@@ -36,4 +34,3 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
->>>>>>> dev
