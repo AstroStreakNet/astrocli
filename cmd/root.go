@@ -52,39 +52,39 @@ visibility.`,
 
     // check arguments
     Args: func(cmd *cobra.Command, args []string) error {
-	if len(args) < 1 {
-	    return errors.New("Please specify file path")
-	}
+		if len(args) < 1 {
+	    	return errors.New("Please specify file path")
+		}
 
-	for i := 0; i < len(args); i++ {
-	    filePath = append(filePath, args[i])
-	}
+		for i := 0; i < len(args); i++ {
+	    	filePath = append(filePath, args[i])
+		}
 
-	return nil 
+		return nil 
     },
 
     Run: func(cmd *cobra.Command, args []string) {
 
-	for i := 0; i < len(filePath); i ++ {
-	    // make web request
+		for i := 0; i < len(filePath); i ++ {
+		    // make web request
 
-	    fmt.Printf("[WebRequest] ai_perms=%t, public_perms=%t, file=%s\n",
-	    !blockAI, !blockPublic, filePath[i])
-	}
+	    	fmt.Printf("[WebRequest] ai_perms=%t, public_perms=%t, file=%s\n",
+		    !blockAI, !blockPublic, filePath[i])
+		}
     },
 }
 
 func init() {
     rootCmd.Flags().BoolVarP(&blockAI, 
-	"no-ai", "N", 
-        false, 
-	"Do not allow your images to be used for AI training",
+		"no-ai", "N", 
+	    false,
+		"Do not allow your images to be used for AI training",
     )
 
     rootCmd.Flags().BoolVarP(&blockPublic,
-	"private", "P",
-	false,
-	"Upload privately. Default Public",
+		"private", "P",
+		false,
+		"Upload privately. Default Public",
     )
 
     rootCmd.CompletionOptions.DisableDefaultCmd = true

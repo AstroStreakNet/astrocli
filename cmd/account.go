@@ -14,15 +14,15 @@ var accountCmd = &cobra.Command{
     Short: "Manage your AstroStreak account status",
 
     Run: func(cmd *cobra.Command, args []string) {
-	// if both --login and --logout flags are used together, the utility
-	// will prioritise --login and will override existing account details
-	// with new ones.
-
-	if login {
-	    loginPrompt()
-	} else if logout {
-	    logoutAction()
-	}
+		// if both --login and --logout flags are used together, the utility
+		// will prioritise --login and will override existing account details
+		// with new ones.
+	
+		if login {
+		    loginPrompt()
+		} else if logout {
+		    logoutAction()
+		}
     },
 }
 
@@ -30,15 +30,15 @@ func init() {
     rootCmd.AddCommand(accountCmd)
 
     accountCmd.Flags().BoolVarP(&login,
-	"login", "i",
-	false,
-	"login into your account",
+		"login", "i",
+		false,
+		"login into your account",
     )
 
     accountCmd.Flags().BoolVarP(&logout,
-	"logout", "o",
-	false,
-	"logout from your account",
+		"logout", "o",
+		false,
+		"logout from your account",
     )
 }
 
@@ -51,9 +51,10 @@ func loginPrompt() {
 
     fmt.Printf("%s: ", yellow("password"))
     password, err := term.ReadPassword(int(os.Stdin.Fd()))
+
     if err != nil {
-	fmt.Println("Error reading password:", err)
-	return
+		fmt.Println("Error reading password:", err)
+		return
     }
     fmt.Println("")
     
