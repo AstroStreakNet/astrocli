@@ -34,7 +34,7 @@ var notContains string
 var count int 
 var getAll bool 
 var date string
-var trainable bool 
+var trainable *bool
 var savePath string
 
 // config 

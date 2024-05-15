@@ -9,7 +9,10 @@ images.
 package cmd
 
 import (
-	"fmt"
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "net/http"
 	"github.com/spf13/cobra"
 )
 
@@ -23,10 +26,37 @@ certain items, date, and AI training status. View latest 10 images when no
 flag's used.`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("[WebRequest] contains=%s, notContains=%s, date=%s, num=%d",
-		contains, notContains, date, count)
+        // create request payload
+        payload := map[string]interface{}{
+            "contains":     contains,
+            "notContains":  notContains,
+            "date":         date,
+            "count":        count,
+            "trainable":    trainable,
+        }
 
-		fmt.Printf(" trainable=%t\n", trainable)
+        // convert payload to JSON
+        jsonData, err := json.Marshal(payload)
+        if err != nil {
+            fmt.Println("Error marshalling JSON:", err)
+            return
+        }
+
+        // make POST request to server
+        resp, err := http.Post(
+            "http://localhost:8080/browse",
+            "application/json",
+            bytes.NewBuffer(jsonData),
+        )
+
+        if err != nil {
+            fmt.Println("Error making request:", err)
+            return
+        }
+        defer resp.Body.Close()
+
+        // print response
+        fmt.Println("Server Response:", resp.Status)
 	},
 }
 
@@ -46,7 +76,7 @@ func init() {
 
 	browseCmd.Flags().BoolVarP(&trainable,
 		"trainable", "t",
-		false,
+		nil,
 		"Filternly images permitted for AI training",
 	)
 
