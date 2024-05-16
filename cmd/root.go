@@ -18,8 +18,8 @@ import (
 // entry point to the application 
 func Execute() {
     if err := rootCmd.Execute(); err != nil {
-	fmt.Println(err)
-	os.Exit(1)
+        fmt.Println(err)
+        os.Exit(1)
     }
 }
 
@@ -31,10 +31,10 @@ var filePath []string
 // browse and download flags  
 var contains string 
 var notContains string
-var count int 
+var count int
 var getAll bool 
 var date string
-var trainable *bool
+var trainable bool
 var savePath string
 
 // config 

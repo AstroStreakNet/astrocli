@@ -44,7 +44,7 @@ flag's used.`,
 
         // make POST request to server
         resp, err := http.Post(
-            "http://localhost:8080/browse",
+            "http://localhost:8080/CLI",
             "application/json",
             bytes.NewBuffer(jsonData),
         )
@@ -76,7 +76,7 @@ func init() {
 
 	browseCmd.Flags().BoolVarP(&trainable,
 		"trainable", "t",
-		nil,
+		false,
 		"Filternly images permitted for AI training",
 	)
 
