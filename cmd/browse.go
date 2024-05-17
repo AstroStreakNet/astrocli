@@ -23,7 +23,7 @@ var browseCmd = &cobra.Command{
 	Long  : 
 `Browse images based on specified criteria such as containing or not containing 
 certain items, date, and AI training status. View latest 10 images when no 
-flag's used.`,
+flag's used. Save results for criteria you see fit.`,
 
 	Run: func(cmd *cobra.Command, args []string) {
         // create request payload
@@ -58,6 +58,16 @@ flag's used.`,
         // print response
         fmt.Println("Server Response:", resp.Status)
 	},
+}
+
+func processResult() {
+    // date     := 
+    // uploader :=
+    // imageURL :=
+    // contains :=
+    // nContain :=
+
+    // save image if -d is used
 }
 
 func init() {
@@ -97,6 +107,12 @@ func init() {
 		false,
 		"Retrieve all matching results",
 	)
+
+    browseCmd.Flags().StringVarP(&savePath,
+        "download", "D",
+        "~/Downloads/",
+        "Download result in specified location. Default ~/Downloads",
+    )
 
 	rootCmd.AddCommand(browseCmd)
 }
