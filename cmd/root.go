@@ -10,8 +10,14 @@ package cmd
 
 import (
     "os"
+    "io"
     "fmt"
+    "bytes"
     "errors"
+    "strconv"
+    "net/http"
+    "mime/multipart"
+    "path/filepath"
     "github.com/spf13/cobra"
 )
 
@@ -49,7 +55,6 @@ var rootCmd = &cobra.Command{
 `Upload images to the AstroStreak database specifying AI permissions and public  
 visibility.`,
 
-
     // check arguments
     Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
@@ -66,11 +71,55 @@ visibility.`,
     Run: func(cmd *cobra.Command, args []string) {
 
 		for i := 0; i < len(filePath); i ++ {
-		    // make web request
+            // fmt.Printf("[WebRequest] ai_perms=%t, public_perms=%t, file=%s\n",
+            // !blockAI, !blockPublic, filePath[i])
 
-	    	fmt.Printf("[WebRequest] ai_perms=%t, public_perms=%t, file=%s\n",
-		    !blockAI, !blockPublic, filePath[i])
-		}
+            file, err := os.Open(filePath[i])
+            if err != nil {
+                fmt.Println("Error opening file:", err)
+                return
+            }
+            defer file.Close()
+
+            // create a new multipart writer
+            var b bytes.Buffer
+            writer := multipart.NewWriter(&b)
+
+            // create a new form file field
+            fileField, err := writer.CreateFormFile("file", filepath.Base(filePath[i]))
+            if err != nil {
+                fmt.Println("Error creating form file:", err)
+                return
+            }
+
+            // copy the file contents to the form file field
+            _, err = io.Copy(fileField, file)
+            if err != nil {
+                fmt.Println("Error copying file contents:", err)
+                return
+            }
+
+            // add other fields to the form
+            writer.WriteField("blockAI", strconv.FormatBool(blockAI))
+            writer.WriteField("blockPublic", strconv.FormatBool(blockPublic))
+
+            // Close the multipart writer
+            writer.Close()
+
+            // Make POST request to server
+            resp, err := http.Post(
+                "http://localhost:8080/upload",
+                writer.FormDataContentType(),
+                &b,
+            )
+            if err != nil {
+                fmt.Println("Error making request:", err)
+                return
+            }
+            defer resp.Body.Close()
+
+            fmt.Println("Server Response:", resp.Status)
+        }
     },
 }
 
