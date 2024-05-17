@@ -52,28 +52,25 @@ var rootCmd = &cobra.Command{
     Use   : "streak [flags] <file>",
     Short : "Upload files to your AstroStreak Account",
     Long  :
-`Upload images to the AstroStreak database specifying AI permissions and public  
-visibility.`,
+    `Upload images to the AstroStreak database specifying AI permissions and public  
+    visibility.`,
 
     // check arguments
     Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-	    	return errors.New("Please specify file path")
-		}
+        if len(args) < 1 {
+            return errors.New("Please specify file path")
+        }
 
-		for i := 0; i < len(args); i++ {
-	    	filePath = append(filePath, args[i])
-		}
+        for i := 0; i < len(args); i++ {
+            filePath = append(filePath, args[i])
+        }
 
-		return nil 
+        return nil 
     },
 
     Run: func(cmd *cobra.Command, args []string) {
-
-		for i := 0; i < len(filePath); i ++ {
-            // fmt.Printf("[WebRequest] ai_perms=%t, public_perms=%t, file=%s\n",
-            // !blockAI, !blockPublic, filePath[i])
-
+        for i := 0; i < len(filePath); i++ {
+            // Open the file
             file, err := os.Open(filePath[i])
             if err != nil {
                 fmt.Println("Error opening file:", err)
@@ -81,27 +78,27 @@ visibility.`,
             }
             defer file.Close()
 
-            // create a new multipart writer
+            // Create a new multipart writer
             var b bytes.Buffer
             writer := multipart.NewWriter(&b)
 
-            // create a new form file field
-            fileField, err := writer.CreateFormFile("file", filepath.Base(filePath[i]))
+            // Create a new form file field
+            fileField, err := writer.CreateFormFile("image", filepath.Base(filePath[i]))
             if err != nil {
                 fmt.Println("Error creating form file:", err)
                 return
             }
 
-            // copy the file contents to the form file field
+            // Copy the file contents to the form file field
             _, err = io.Copy(fileField, file)
             if err != nil {
                 fmt.Println("Error copying file contents:", err)
                 return
             }
 
-            // add other fields to the form
-            writer.WriteField("blockAI", strconv.FormatBool(blockAI))
-            writer.WriteField("blockPublic", strconv.FormatBool(blockPublic))
+            // Add other fields to the form
+            writer.WriteField("allowPublic", strconv.FormatBool(!blockPublic))
+            writer.WriteField("allowML", strconv.FormatBool(trainable))
 
             // Close the multipart writer
             writer.Close()
