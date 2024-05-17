@@ -13,7 +13,9 @@ import (
     "io"
     "fmt"
     "bytes"
+    "bufio"
     "errors"
+    "strings"
     "strconv"
     "net/http"
     "mime/multipart"
@@ -33,6 +35,13 @@ func Execute() {
 var blockAI bool
 var blockPublic bool
 var filePath []string 
+var observatory string = ""
+var rightAscen string = ""
+var declination string = ""
+var julian string = ""
+var exposure string = ""
+var streakType string = ""
+var telescope string = ""
 
 // browse and download flags  
 var contains string 
@@ -52,8 +61,8 @@ var rootCmd = &cobra.Command{
     Use   : "streak [flags] <file>",
     Short : "Upload files to your AstroStreak Account",
     Long  :
-    `Upload images to the AstroStreak database specifying AI permissions and public  
-    visibility.`,
+`Upload images to the AstroStreak database specifying AI permissions and public  
+visibility.`,
 
     // check arguments
     Args: func(cmd *cobra.Command, args []string) error {
@@ -69,55 +78,111 @@ var rootCmd = &cobra.Command{
     },
 
     Run: func(cmd *cobra.Command, args []string) {
+        reader := bufio.NewReader(os.Stdin)
+
         for i := 0; i < len(filePath); i++ {
-            // Open the file
-            file, err := os.Open(filePath[i])
-            if err != nil {
-                fmt.Println("Error opening file:", err)
-                return
-            }
-            defer file.Close()
-
-            // Create a new multipart writer
-            var b bytes.Buffer
-            writer := multipart.NewWriter(&b)
-
-            // Create a new form file field
-            fileField, err := writer.CreateFormFile("image", filepath.Base(filePath[i]))
-            if err != nil {
-                fmt.Println("Error creating form file:", err)
-                return
+            if i != 0 {
+                fmt.Println("\n\n\033[1;33m*Leave empty for same as previous*")
             }
 
-            // Copy the file contents to the form file field
-            _, err = io.Copy(fileField, file)
-            if err != nil {
-                fmt.Println("Error copying file contents:", err)
-                return
-            }
+            telescope = readInput(reader, "[1/7] Telescope",
+                telescope)
 
-            // Add other fields to the form
-            writer.WriteField("allowPublic", strconv.FormatBool(!blockPublic))
-            writer.WriteField("allowML", strconv.FormatBool(trainable))
+            observatory = readInput(reader, "[2/7] Observatory Code",
+                observatory)
 
-            // Close the multipart writer
-            writer.Close()
+            rightAscen = readInput(reader, "[3/7] Right Ascension, RA",
+                rightAscen)
 
-            // Make POST request to server
-            resp, err := http.Post(
-                "http://localhost:8080/upload",
-                writer.FormDataContentType(),
-                &b,
-            )
-            if err != nil {
-                fmt.Println("Error making request:", err)
-                return
-            }
-            defer resp.Body.Close()
+            declination = readInput(reader, "[4/7] Declination, DEC",
+                declination)
 
-            fmt.Println("Server Response:", resp.Status)
+            julian = readInput(reader, "[5/7] Julian Date (mm/dd/yyyy)",
+                julian)
+
+            exposure = readInput(reader, "[6/7] Exposure Duration (hh:mm)",
+                exposure)
+
+            fmt.Println("\033[0;34m[7/7] Streak Type :\033[0;35m")
+            fmt.Println("      a. Cosmic Ray")
+            fmt.Println("      b. Resident Space Object")
+            fmt.Println("      c. Near Earth Object")
+            fmt.Println("      d. Detector Artifact")
+            fmt.Println("      e. Other")
+            streakType = readInput(reader, "Option", streakType)
+
+            postImage(filePath[i])
         }
     },
+}
+
+func readInput(reader *bufio.Reader, prompt string, previousValue string) string {
+    fmt.Printf("\033[0;34m%v : \033[0m", prompt)
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(input)
+	if input == "" {
+		return previousValue
+	}
+	return input
+}
+
+func postImage(singleFile string) {
+    // Open the file
+    file, err := os.Open(singleFile)
+    if err != nil {
+        fmt.Println("Error opening file:", err)
+        return
+    }
+    defer file.Close()
+
+    // Create a new multipart writer
+    var b bytes.Buffer
+    writer := multipart.NewWriter(&b)
+
+    // Create a new form file field
+    fileField, err := writer.CreateFormFile(
+        "image", 
+        filepath.Base(singleFile),
+    )
+    if err != nil {
+        fmt.Println("Error creating form file:", err)
+        return
+    }
+
+    // Copy the file contents to the form file field
+    _, err = io.Copy(fileField, file)
+    if err != nil {
+        fmt.Println("Error copying file contents:", err)
+        return
+    }
+
+    // Add other fields to the form
+    writer.WriteField("allowPublic", strconv.FormatBool(!blockPublic))
+    writer.WriteField("allowML", strconv.FormatBool(trainable))
+    writer.WriteField("observatory", observatory)
+    writer.WriteField("rightAscen", rightAscen)
+    writer.WriteField("declination", declination)
+    writer.WriteField("julian", julian)
+    writer.WriteField("exposure", exposure)
+    writer.WriteField("streakType", streakType)
+    writer.WriteField("telescope", telescope)
+
+    // Close the multipart writer
+    writer.Close()
+
+    // Make POST request to server
+    resp, err := http.Post(
+        "http://localhost:8080/upload",
+        writer.FormDataContentType(),
+        &b,
+    )
+    if err != nil {
+        fmt.Println("Error making request:", err)
+        return
+    }
+    defer resp.Body.Close()
+
+    fmt.Println("Server Response:", resp.Status)
 }
 
 func init() {
