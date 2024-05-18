@@ -12,6 +12,7 @@ import (
     "os"
     "io"
     "fmt"
+    "time"
     "bytes"
     "bufio"
     "errors"
@@ -97,11 +98,27 @@ visibility.`,
             declination = readInput(reader, "[4/7] Declination, DEC",
                 declination)
 
-            julian = readInput(reader, "[5/7] Julian Date (mm/dd/yyyy)",
-                julian)
+            for {
+                julian = readInput(reader, "[5/7] Julian date (mm/dd/yyyy)",
+                    julian)
 
-            exposure = readInput(reader, "[6/7] Exposure Duration (hh:mm)",
-                exposure)
+                if _, err := time.Parse("01/02/2006", julian); err != nil {
+                    fmt.Println("\033[31mInvalid date format.")
+                } else {
+                    break
+                }
+            }
+
+            for {
+                exposure = readInput(reader, "[6/7] Exposure Duration (hh:mm)",
+                    exposure)
+
+                if _, err := time.Parse("15:04", exposure); err != nil {
+                    fmt.Println("\033[31mInvalid time format.")
+                } else {
+                    break
+                }
+            }
 
             fmt.Println("\033[0;34m[7/7] Streak Type :\033[0;35m")
             fmt.Println("      a. Cosmic Ray")
@@ -116,12 +133,12 @@ visibility.`,
     },
 }
 
-func readInput(reader *bufio.Reader, prompt string, previousValue string) string {
+func readInput(reader *bufio.Reader, prompt string, oldValue string) string {
     fmt.Printf("\033[0;34m%v : \033[0m", prompt)
 	input, _ := reader.ReadString('\n')
 	input = strings.TrimSpace(input)
 	if input == "" {
-		return previousValue
+		return oldValue
 	}
 	return input
 }
@@ -162,10 +179,26 @@ func postImage(singleFile string) {
     writer.WriteField("observatory", observatory)
     writer.WriteField("rightAscen", rightAscen)
     writer.WriteField("declination", declination)
-    writer.WriteField("julian", julian)
-    writer.WriteField("exposure", exposure)
     writer.WriteField("streakType", streakType)
     writer.WriteField("telescope", telescope)
+
+    // Parse julian string into time.Time object
+    julianTime, err := time.Parse("01/02/2006", julian)
+    if err != nil {
+        fmt.Println("Error parsing Julian date:", err)
+        return
+    }
+
+    // Parse exposure string into time.Time object
+    exposureTime, err := time.Parse("15:04", exposure)
+    if err != nil {
+        fmt.Println("Error parsing exposure time:", err)
+        return
+    }
+
+    // Add other fields to the form
+    writer.WriteField("julian", julianTime.Format("2006-01-02"))
+    writer.WriteField("exposure", exposureTime.Format("15:04"))
 
     // Close the multipart writer
     writer.Close()
@@ -201,4 +234,12 @@ func init() {
     rootCmd.CompletionOptions.DisableDefaultCmd = true
     rootCmd.Flags().MarkHidden("help")
 }
+
+/* 
+With no options specified, the tool will default with upload functionality.
+ 
+Flags could be used to change the uploaded media's permissions, as in if to
+allow them to be used for AI training or not, and if they should be viewable to
+the general public.
+*/
 
