@@ -4,12 +4,19 @@ Browse command allows user to get resultIDs for their query from the database.
 This option would be especially useful when trying to study uploaded data, such
 as count the percentage of results with xyz specifications out of all abc
 images.
+
+Using the -s or -save flag, users will also be able to save results locally on
+their computer. By default these images would be saved in ~/Downloads but the
+program will support custom path.
 */
 
 package cmd
 
 import (
-	"fmt"
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "net/http"
 	"github.com/spf13/cobra"
 )
 
@@ -20,14 +27,51 @@ var browseCmd = &cobra.Command{
 	Long  : 
 `Browse images based on specified criteria such as containing or not containing 
 certain items, date, and AI training status. View latest 10 images when no 
-flag's used.`,
+flag's used. Save results for criteria you see fit.`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("[WebRequest] contains=%s, notContains=%s, date=%s, num=%d",
-		contains, notContains, date, count)
+        // create request payload
+        payload := map[string]interface{}{
+            "contains":     contains,
+            "notContains":  notContains,
+            "date":         date,
+            "count":        count,
+            "trainable":    trainable,
+        }
 
-		fmt.Printf(" trainable=%t\n", trainable)
+        // convert payload to JSON
+        jsonData, err := json.Marshal(payload)
+        if err != nil {
+            fmt.Println("Error marshalling JSON:", err)
+            return
+        }
+
+        // make POST request to server
+        resp, err := http.Post(
+            "http://localhost:8080/CLI",
+            "application/json",
+            bytes.NewBuffer(jsonData),
+        )
+
+        if err != nil {
+            fmt.Println("Error making request:", err)
+            return
+        }
+        defer resp.Body.Close()
+
+        // print response
+        fmt.Println("Server Response:", resp.Status)
 	},
+}
+
+func processResult() {
+    // date     := 
+    // uploader :=
+    // imageURL :=
+    // contains :=
+    // nContain :=
+
+    // save image if -d is used
 }
 
 func init() {
@@ -35,7 +79,7 @@ func init() {
 	browseCmd.Flags().StringVarP(&date,
 		"date", "d",
 		"12-12-2024",
-		"Filter results by date",
+"Filter results by date",
 	)
 
 	browseCmd.Flags().IntVarP(&count,
@@ -67,6 +111,12 @@ func init() {
 		false,
 		"Retrieve all matching results",
 	)
+
+    browseCmd.Flags().StringVarP(&savePath,
+        "save", "s",
+        "~/Downloads/",
+        "Download result in specified location. Default ~/Downloads",
+    )
 
 	rootCmd.AddCommand(browseCmd)
 }
