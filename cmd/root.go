@@ -65,26 +65,38 @@ var rootCmd = &cobra.Command{
 `Upload images to the AstroStreak database specifying AI permissions and public  
 visibility.`,
 
-    // check arguments
     Args: func(cmd *cobra.Command, args []string) error {
-        if len(args) < 1 {
-            return errors.New("Please specify file path")
+        // append command-line arguments
+        for _, arg := range args {
+            filePath = append(filePath, arg)
         }
 
-        for i := 0; i < len(args); i++ {
-            filePath = append(filePath, args[i])
+        // ensure at least one file path is provided
+        if len(filePath) < 1 {
+            return errors.New("please specify at least one file path")
         }
 
-        return nil 
+        return nil
     },
 
     Run: func(cmd *cobra.Command, args []string) {
         reader := bufio.NewReader(os.Stdin)
 
         for i := 0; i < len(filePath); i++ {
-            if i != 0 {
-                fmt.Println("\n\n\033[1;33m*Leave empty for same as previous*")
+            // check if the file exists
+            if _, err := os.Stat(filePath[i]); os.IsNotExist(err) {
+                fmt.Printf("\033[31mFile %s does not exist. Skipping...\033[0m\n",
+                    filePath[i])
+                continue
             }
+
+            // inform about leaving blank
+            if len(filePath) > 1 {
+                fmt.Println("\033[1;33m[From the second image onwards, leave blank to reuse previous values.]\033[0m")
+            }
+
+            fmt.Printf("Image %v of %v:\033[31m %v\n",
+                i+1, len(filePath)+1, filePath[i])
 
             telescope = readInput(reader, "[1/7] Telescope",
                 telescope)
@@ -129,6 +141,7 @@ visibility.`,
             streakType = readInput(reader, "Option", streakType)
 
             postImage(filePath[i])
+            fmt.Println("")
         }
     },
 }
@@ -144,7 +157,7 @@ func readInput(reader *bufio.Reader, prompt string, oldValue string) string {
 }
 
 func postImage(singleFile string) {
-    // Open the file
+    // open the file
     file, err := os.Open(singleFile)
     if err != nil {
         fmt.Println("Error opening file:", err)
@@ -152,11 +165,11 @@ func postImage(singleFile string) {
     }
     defer file.Close()
 
-    // Create a new multipart writer
+    // create a new multipart writer
     var b bytes.Buffer
     writer := multipart.NewWriter(&b)
 
-    // Create a new form file field
+    // create a new form file field
     fileField, err := writer.CreateFormFile(
         "image", 
         filepath.Base(singleFile),
@@ -166,14 +179,14 @@ func postImage(singleFile string) {
         return
     }
 
-    // Copy the file contents to the form file field
+    // copy the file contents to the form file field
     _, err = io.Copy(fileField, file)
     if err != nil {
         fmt.Println("Error copying file contents:", err)
         return
     }
 
-    // Add other fields to the form
+    // add other fields to the form
     writer.WriteField("allowPublic", strconv.FormatBool(!blockPublic))
     writer.WriteField("allowML", strconv.FormatBool(trainable))
     writer.WriteField("observatory", observatory)
@@ -182,21 +195,21 @@ func postImage(singleFile string) {
     writer.WriteField("streakType", streakType)
     writer.WriteField("telescope", telescope)
 
-    // Parse julian string into time.Time object
+    // parse julian string into time.Time object
     julianTime, err := time.Parse("01/02/2006", julian)
     if err != nil {
         fmt.Println("Error parsing Julian date:", err)
         return
     }
 
-    // Parse exposure string into time.Time object
+    // parse exposure string into time.Time object
     exposureTime, err := time.Parse("15:04", exposure)
     if err != nil {
         fmt.Println("Error parsing exposure time:", err)
         return
     }
 
-    // Add other fields to the form
+    // add other fields to the form
     writer.WriteField("julian", julianTime.Format("2006-01-02"))
     writer.WriteField("exposure", exposureTime.Format("15:04"))
 
@@ -234,12 +247,4 @@ func init() {
     rootCmd.CompletionOptions.DisableDefaultCmd = true
     rootCmd.Flags().MarkHidden("help")
 }
-
-/* 
-With no options specified, the tool will default with upload functionality.
- 
-Flags could be used to change the uploaded media's permissions, as in if to
-allow them to be used for AI training or not, and if they should be viewable to
-the general public.
-*/
 
