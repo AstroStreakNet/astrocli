@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# BaSH script to run the utility more flexibly on UNIX based Operating Systems.
+# This script automates a lot of the actions, that would otherwise, be managed
+# manually.
+
+## setup streak for correct arch
+setup() {
+    # detect user system architecture
+    # pull latest build
+    # try git, curl and wget, else print error
+    # save build as ~/.cache/streak-cli/streak1.0
+}
+
+## update
+update() {
+    # compare current version with latest
+    # pull latest build
+}
+
+## --fzf mode
+fzf_input() {
+    # ensure fzf is installed
+    find "$1" -type f | grep -E -i "\.(png|jpg|fits|jpeg)" | fzf -m
+}
+
+## run
+# ensure ~/.cache/streak-cli/* isn't empty, if is, call setup()
+# pass pipes as args
+# if args contain --fzf call fzf_input()
+
