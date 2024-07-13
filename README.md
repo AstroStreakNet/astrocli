@@ -22,23 +22,20 @@ Upload images from the *"captures"* directory within ~/Pictures to the database
 with public visibility but without granting AI training permissions.
 ```sh
 $ streak --no-ai ~/Pictures/captures/*
-```
-```sh
 $ streak -N ~/Pictures/captures/*
 ```
 
 Upload all FITS files captured today located in the *"saves"* directory within
-the ~/Pictures.
+the ~/Pictures with default flags.
 ```sh
-$ find ~/Pictures/saves/ -iname "*.fits" -type f -mtime -1 | xargs streak
+$ streak $(find ~/Pictures/saves/ -iname "*.fits" -type f -mtime -1)
+$ find ~/Pictures/saves/ -iname "*.fits" -type f -mtime -1 | streak)
 ```
 
 Count the number of images containing both the sun and the moon but not any
 asteroids.
 ```sh
 $ streak browse --all --contains "sun moon" --not-contains "astroid" | wc -l
-```
-```sh
 $ streak browse -A -c "sun moon" -C "astroid" | wc -l
 ```
 
@@ -46,13 +43,10 @@ Download all images uploaded on February 26, 2024, permitted for AI training,
 and save them in a directory named *"saved"* within the ~/Pictures.
 ```sh
 $ streak browse --all --trainable --date "26-02-2024" --save ~/Pictures/saved
-```
-```sh
 $ streak browse -A -t -d "26-02-2024" -s ~/Pictures/saved
 ```
 
 ## Project Origin
 Streak was developed as a final year project for the Software Engineering
-Honours program at Swinburne University of
-Technology. 
+Honours program at Swinburne University of Technology.
 

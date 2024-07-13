@@ -1,0 +1,10 @@
+
+# .gitignore
+
+**/.DS_Store
+
+go.sum
+
+bin/
+test/
+
