@@ -1,4 +1,4 @@
-module streak
+module github.com/AstroStreakNet/streak
 
 go 1.21.9
 
