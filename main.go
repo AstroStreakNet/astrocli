@@ -1,7 +1,7 @@
 package main
 
 import (
-    "streak/cmd"
+    "github.com/AstroStreakNet/streak/cmd"
 )
 
 func main() {
