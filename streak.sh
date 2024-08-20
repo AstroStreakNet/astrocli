@@ -6,19 +6,29 @@
 #- HELPER FUNCTIONS ------------------------------------------------------------
 
 OPT_PATH="/opt/streak"
-STREAK_BIN="$OPT_PATH/bin"
+export STREAK_BIN="$OPT_PATH/bin"
 
-ERROR_MISSING() {
-	echo -e "\033[31mError:\033[0m $1 is not installed."
-	echo "Please install $1 to proceed or make sure it's in \$PATH"
-	exit 1
+CHECK_MISSING () {
+	command -v "$1" > /dev/null 2>&1 && return
+
+	# $2 = essential requirement
+	# true  = error. terminate if not found
+	# false = warning. just show missing
+
+	if [ $2 = true ]; then 
+		echo -e "\033[31mError 401:\033[0m $1 is not installed."
+		echo "Please install \"$1\" to proceed and make sure it's in \$PATH"
+		exit 1;
+	else
+		echo -e "\033[33mWarning 401:\033[0m $1 is not installed."
+		echo "Program usage is limited due to missing package: \"$1\""
+	fi
 }
 
 INSTALL_STREAK() {
-	command -v git  >/dev/null 2>&1 || ERROR_MISSING "git"   # check git
-	command -v curl >/dev/null 2>&1 || ERROR_MISSING "curl"  # check curl
-	command -v tar  >/dev/null 2>&1 || ERROR_MISSING "tar"   # check tar
-	command -v grep >/dev/null 2>&1 || ERROR_MISSING "grep"  # check grep
+	CHECK_MISSING "git"  true  # to pull the project and keep it updated
+	CHECK_MISSING "tar"  true  # to untar source files
+	CHECK_MISSING "grep" true  # to search through local .FITS
 
 	# direct build link
 	RELEASE="https://api.github.com/repos/AstroStreakNet/streak/releases/latest"
@@ -79,6 +89,17 @@ INSTALL_STREAK() {
 
 
 #- CHECK INSTALL ---------------------------------------------------------------
+
+# xargs is required to process input passed as pipes. It's optional when usecase
+# is strictly 
+#     $ streak upload [commands]
+#
+# but is necessary for trying commands as-
+#     $ find . -type f | streal upload
+CHECK_MISSING "xargs" false
+
+# required to download requested images, and program files
+CHECK_MISSING "curl" true
 
 # check installation path
 if [ -d "$OPT_PATH" ]; then
