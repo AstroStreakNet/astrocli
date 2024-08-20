@@ -82,7 +82,11 @@ INSTALL_STREAK() {
 
 # check installation path
 if [ -d "$OPT_PATH" ]; then
-	scripts=("bin" "print.sh" "upload.sh" "utils.sh" "download.sh" "browse.sh")
+	scripts=(
+		"bin" # program binary
+		"debug.sh" "print.sh"                            # more info
+		"upload.sh" "utils.sh" "download.sh" "browse.sh" # binary wrapper
+	)
 
 	for file in "${scripts[@]}"; do
 		if [ ! -f "$OPT_PATH/$file" ]; then
@@ -97,17 +101,44 @@ else
 fi
 
 
-case "$1" in
+#- RUN STREAK ------------------------------------------------------------------
+
+CMD=$1
+shift
+ARGS="$@"
+if [ ! -t 0 ]; then ARGS+=" $(xargs)"; fi
+
+case "$CMD" in
 	"--help")
 		bash "$OPT_PATH/print.sh" "PROMPT_HELP"
 		;;
 
-	"--upload")
-		bash "$OPT_PATH/upload.sh"
+	"upload")
+		bash "$OPT_PATH/upload.sh" $ARGS
+		;;
+
+	"browse")
+		bash "$OPT_PATH/browse.sh" $ARGS
+		;;
+
+	"download")
+		bash "$OPT_PATH/download.sh" $ARGS
+		;;
+
+	"fzf")
+		bash "$OPT_PATH/utils.sh" "fzf" $ARGS
+		;;
+
+	"find")
+		bash "$OPT_PATH/utils.sh" "find" $ARGS
+		;;
+
+	"debug")
+		bash "$OPT_PATH/debug.sh" $ARGS
 		;;
 
 	*)
-		bash "$OPT_PATH/print.sh" "ERROR" "Invalid usage."
+		bash "$OPT_PATH/print.sh" "ERROR" "Invalid usage: $CMD"
 		bash "$OPT_PATH/print.sh" "PROMPT_HELP"
 		;;
 esac
