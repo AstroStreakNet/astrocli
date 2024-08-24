@@ -5,8 +5,8 @@
 
 #- HELPER FUNCTIONS ------------------------------------------------------------
 
-export STREAK_INSTALL_PATH="/opt/streak"
-export STREAK_BIN="$STREAK_INSTALL_PATH/bin"
+export INSTALL_PATH="/opt/streak"
+export BIN="$INSTALL_PATH/bin"
 
 CHECK_MISSING () {
 	command -v "$1" > /dev/null 2>&1 && return
@@ -77,14 +77,14 @@ INSTALL_STREAK() {
 
 	# create installation path
 	echo "Login as super user to complete the installation."
-	sudo mkdir -p "$STREAK_INSTALL_PATH"
+	sudo mkdir -p "$INSTALL_PATH"
 
 	# save installation media
-	curl -L -o "$STREAK_INSTALL_PATH/bin" "$BIN_URL"               # streak binary
-	curl -L -o "$STREAK_INSTALL_PATH/source.tar.gz" "$SOURCE_URL"  # source archive
+	curl -L -o "$INSTALL_PATH/bin" "$BIN_URL"               # streak binary
+	curl -L -o "$INSTALL_PATH/source.tar.gz" "$SOURCE_URL"  # source archive
 
 	# untar source files
-	tar -xzf "$STREAK_INSTALL_PATH/source.tar.gz" -C "$STREAK_INSTALL_PATH/"
+	tar -xzf "$INSTALL_PATH/source.tar.gz" -C "$INSTALL_PATH/"
 
 	echo "Installed StreakCLI Successfully!"
 }
@@ -104,7 +104,7 @@ CHECK_MISSING "xargs" false
 CHECK_MISSING "curl" true
 
 # check installation path
-if [ -d "$STREAK_INSTALL_PATH" ]; then
+if [ -d "$INSTALL_PATH" ]; then
 	scripts=(
 		"bin" # program binary
 		"debug.sh" "print.sh"                            # more info
@@ -112,16 +112,24 @@ if [ -d "$STREAK_INSTALL_PATH" ]; then
 	)
 
 	for file in "${scripts[@]}"; do
-		if [ ! -f "$STREAK_INSTALL_PATH/$file" ]; then
+		if [ ! -f "$INSTALL_PATH/$file" ]; then
 			echo -e "\033[31mError 400:\033[0m Installation appears to be broken."
 			echo "Fixing install... this should only take a moment."
 			INSTALL_STREAK
 		fi
 	done
 else
-	bash "$STREAK_INSTALL_PATH/print.sh" "PROMPT_NEW"
+	bash "$INSTALL_PATH/print.sh" "PROMPT_NEW"
 	INSTALL_STREAK
 fi
+
+
+#- DEPENDENCIES ----------------------------------------------------------------
+
+# script calls very commonly required in various different scripts
+
+export PRINT_ERROR="$INSTALL_PATH/print.sh ERROR"
+export PRINT_WARNING="$INSTALL_PATH/print.sh WARN"
 
 
 #- RUN STREAK ------------------------------------------------------------------
@@ -133,28 +141,28 @@ if [ ! -t 0 ]; then ARGS+=" $(xargs)"; fi
 
 case "$CMD" in
 	"--help" | "-h" | "help")
-		bash "$STREAK_INSTALL_PATH/print.sh" "PROMPT_HELP"
+		bash "$INSTALL_PATH/print.sh" "PROMPT_HELP"
 		;;
 
 	"upload" | "u")
-		bash "$STREAK_INSTALL_PATH/upload.sh" $ARGS
+		bash "$INSTALL_PATH/upload.sh" $ARGS
 		;;
 
 	"browse" | "b")
-		bash "$STREAK_INSTALL_PATH/browse.sh" $ARGS
+		bash "$INSTALL_PATH/browse.sh" $ARGS
 		;;
 
 	"download" | "d")
-		bash "$STREAK_INSTALL_PATH/download.sh" $ARGS
+		bash "$INSTALL_PATH/download.sh" $ARGS
 		;;
 
 	"debug" | "x" | "whatis")
-		bash "$STREAK_INSTALL_PATH/debug.sh" $ARGS
+		bash "$INSTALL_PATH/debug.sh" $ARGS
 		;;
 
 	*)
-		bash "$STREAK_INSTALL_PATH/print.sh" "ERROR" 100 "Invalid usage $CMD"
-		bash "$STREAK_INSTALL_PATH/print.sh" "PROMPT_HELP"
+		bash "$INSTALL_PATH/print.sh" "ERROR" 100 "Invalid usage $CMD"
+		bash "$INSTALL_PATH/print.sh" "PROMPT_HELP"
 		;;
 esac
 
