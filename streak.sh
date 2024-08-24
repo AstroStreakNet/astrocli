@@ -5,8 +5,8 @@
 
 #- HELPER FUNCTIONS ------------------------------------------------------------
 
-OPT_PATH="/opt/streak"
-export STREAK_BIN="$OPT_PATH/bin"
+export STREAK_INSTALL_PATH="/opt/streak"
+export STREAK_BIN="$STREAK_INSTALL_PATH/bin"
 
 CHECK_MISSING () {
 	command -v "$1" > /dev/null 2>&1 && return
@@ -15,7 +15,7 @@ CHECK_MISSING () {
 	# true  = error. terminate if not found
 	# false = warning. just show missing
 
-	if [ $2 = true ]; then 
+	if [ $2 = true ]; then
 		echo -e "\033[31mError 401:\033[0m $1 is not installed."
 		echo "Please install \"$1\" to proceed and make sure it's in \$PATH"
 		exit 1;
@@ -77,12 +77,14 @@ INSTALL_STREAK() {
 
 	# create installation path
 	echo "Login as super user to complete the installation."
-	sudo mkdir -p "$OPT_PATH"
+	sudo mkdir -p "$STREAK_INSTALL_PATH"
 
 	# save installation media
-	curl -L -o "$OPT_PATH/bin" "$BIN_URL"               # streak binary
-	curl -L -o "$OPT_PATH/source.tar.gz" "$SOURCE_URL"  # source archive
-	tar -xzf "$OPT_PATH/source.tar.gz" -C "$OPT_PATH/"  # untar source files
+	curl -L -o "$STREAK_INSTALL_PATH/bin" "$BIN_URL"               # streak binary
+	curl -L -o "$STREAK_INSTALL_PATH/source.tar.gz" "$SOURCE_URL"  # source archive
+
+	# untar source files
+	tar -xzf "$STREAK_INSTALL_PATH/source.tar.gz" -C "$STREAK_INSTALL_PATH/"
 
 	echo "Installed StreakCLI Successfully!"
 }
@@ -91,7 +93,7 @@ INSTALL_STREAK() {
 #- CHECK INSTALL ---------------------------------------------------------------
 
 # xargs is required to process input passed as pipes. It's optional when usecase
-# is strictly 
+# is strictly
 #     $ streak upload [commands]
 #
 # but is necessary for trying commands as-
@@ -102,7 +104,7 @@ CHECK_MISSING "xargs" false
 CHECK_MISSING "curl" true
 
 # check installation path
-if [ -d "$OPT_PATH" ]; then
+if [ -d "$STREAK_INSTALL_PATH" ]; then
 	scripts=(
 		"bin" # program binary
 		"debug.sh" "print.sh"                            # more info
@@ -110,14 +112,14 @@ if [ -d "$OPT_PATH" ]; then
 	)
 
 	for file in "${scripts[@]}"; do
-		if [ ! -f "$OPT_PATH/$file" ]; then
-			echo -e "\033[31mError:\033[0m Installation appears to be broken."
+		if [ ! -f "$STREAK_INSTALL_PATH/$file" ]; then
+			echo -e "\033[31mError 400:\033[0m Installation appears to be broken."
 			echo "Fixing install... this should only take a moment."
 			INSTALL_STREAK
 		fi
 	done
 else
-	bash "$OPT_PATH/print.sh" "PROMPT_NEW"
+	bash "$STREAK_INSTALL_PATH/print.sh" "PROMPT_NEW"
 	INSTALL_STREAK
 fi
 
@@ -130,37 +132,29 @@ ARGS="$@"
 if [ ! -t 0 ]; then ARGS+=" $(xargs)"; fi
 
 case "$CMD" in
-	"--help")
-		bash "$OPT_PATH/print.sh" "PROMPT_HELP"
+	"--help" | "-h" | "help")
+		bash "$STREAK_INSTALL_PATH/print.sh" "PROMPT_HELP"
 		;;
 
-	"upload")
-		bash "$OPT_PATH/upload.sh" $ARGS
+	"upload" | "u")
+		bash "$STREAK_INSTALL_PATH/upload.sh" $ARGS
 		;;
 
-	"browse")
-		bash "$OPT_PATH/browse.sh" $ARGS
+	"browse" | "b")
+		bash "$STREAK_INSTALL_PATH/browse.sh" $ARGS
 		;;
 
-	"download")
-		bash "$OPT_PATH/download.sh" $ARGS
+	"download" | "d")
+		bash "$STREAK_INSTALL_PATH/download.sh" $ARGS
 		;;
 
-	"fzf")
-		bash "$OPT_PATH/utils.sh" "fzf" $ARGS
-		;;
-
-	"find")
-		bash "$OPT_PATH/utils.sh" "find" $ARGS
-		;;
-
-	"debug")
-		bash "$OPT_PATH/debug.sh" $ARGS
+	"debug" | "x" | "whatis")
+		bash "$STREAK_INSTALL_PATH/debug.sh" $ARGS
 		;;
 
 	*)
-		bash "$OPT_PATH/print.sh" "ERROR" "Invalid usage: $CMD"
-		bash "$OPT_PATH/print.sh" "PROMPT_HELP"
+		bash "$STREAK_INSTALL_PATH/print.sh" "ERROR" 100 "Invalid usage $CMD"
+		bash "$STREAK_INSTALL_PATH/print.sh" "PROMPT_HELP"
 		;;
 esac
 
