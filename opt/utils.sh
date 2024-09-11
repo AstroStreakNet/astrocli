@@ -6,7 +6,7 @@
 # helper -----------------------------------------------------------------------
 
 # compare values in files based on conditions like -gt, -lt, exact
-compare_value() {
+compare_value_int() {
     local value1="$1"
     local operator="$2"
     local value2="$3"
@@ -39,7 +39,6 @@ compare_value() {
 # handle find operation with conditions like -gt, -lt, or range
 conditional_find() {
     local key="$1"
-    local test="$2"
     shift 1
 
     local gt_value=""
@@ -56,6 +55,9 @@ conditional_find() {
         shift
     done
 
+    # initialize an array to store matching files
+    matching_files=()
+
     # iterate through the array of files
     for file in "${files[@]}"; do
         # extract the value for the given key from the file
@@ -68,25 +70,51 @@ conditional_find() {
         # skip the file if no value was found for the key
         [[ -z "$value" ]] && continue
 
-        # perform comparisons based on the conditions
         local match=true
-        if [[ -n "$gt_value" ]]; then
-            compare_value "$value" -gt "$gt_value" || match=false
+        if [[ "$value" =~ ^[[:space:]]*-?[0-9]*[.][0-9]+[[:space:]]*$ ||\
+            "$value" =~ ^[[:space:]]*-?[0-9]+[[:space:]]*$ ]];
+        then
+            # perform integer comparisons based on the conditions
+            if [[ -n "$gt_value" ]]; then
+                compare_value_int "$value" -gt "$gt_value" || match=false
+            fi
+
+            if [[ -n "$lt_value" ]]; then
+                compare_value_int "$value" -lt "$lt_value" || match=false
+            fi
+
+            if [[ -n "$eq_value" ]]; then
+                compare_value_int "$value" "=" "$eq_value" || match=false
+            fi
+        else
+            # perform string comparisons for lowercase values
+            local raw_eq_value=$(echo "$eq_value" | tr '[:upper:]' '[:lower:]')
+
+            local raw_value=$(echo "$value" |
+                tr '[:upper:]' '[:lower:]'  |
+                tr -d "' "
+            )
+
+            if [ "$raw_eq_value" != "$raw_value" ]; then
+                match=false
+            fi
         fi
 
-        if [[ -n "$lt_value" ]]; then
-            compare_value "$value" -lt "$lt_value" || match=false
-        fi
-
-        if [[ -n "$eq_value" ]]; then
-            compare_value "$value" "=" "$eq_value" || match=false
-        fi
-
-        # if all conditions match, print the file
+        # if all conditions match, append the file to the matching_files array
         if [[ "$match" == true ]]; then
-            echo "$file"
+            matching_files+=("$file")
         fi
     done
+
+    # print out the list of matching files
+    if [[ "${#matching_files[@]}" -gt 0 ]]; then
+        echo "Matching files:"
+        for file in "${matching_files[@]}"; do
+            echo "$file"
+        done
+    else
+        echo "No matching files found."
+    fi
 }
 
 # actions ----------------------------------------------------------------------
@@ -120,3 +148,4 @@ case $1 in
     bash $PRINT_ERROR 200 "Invalid Use: Utils"
     ;;
 esac
+
