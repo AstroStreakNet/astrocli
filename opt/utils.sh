@@ -38,9 +38,9 @@ compare_value() {
 
 # handle find operation with conditions like -gt, -lt, or range
 conditional_find() {
-    local path="$1"
-    local key="$2"
-    shift 2
+    local key="$1"
+    local test="$2"
+    shift 1
 
     local gt_value=""
     local lt_value=""
@@ -56,9 +56,9 @@ conditional_find() {
         shift
     done
 
-    # use find to go through files in the specified directory
-    find "$path" -maxdepth 1 -iname '*.fit*' | while read -r file; do
-        # Extract the value for the given key from the file
+    # iterate through the array of files
+    for file in "${files[@]}"; do
+        # extract the value for the given key from the file
         value=$(strings "$file" |
             tr '/' '\n' |
             grep -m 1 -ioE "$key\s*=\s*.*" |
@@ -100,14 +100,20 @@ case $1 in
         exit 101
     }
 
+    # perform the find operation and manually store results in an array
+    files=()
+    while IFS= read -r file; do
+        files+=("$file")
+    done < <(find "$2" -maxdepth 1 -iname '*.fit*')
+
     # ensure enough parameters are passed
     [ -n "$3" ] && [ -n "$4" ] || {
         bash $PRINT_ERROR 105 "Missing Find Parameters"
         exit 105
     }
 
-    # run the conditional find based on the parameters
-    conditional_find "$2" "$3" "${@:4}"
+    # pass the array of files and other parameters to conditional_find
+    conditional_find "$3" "${@:4}"
     ;;
 
 *)
