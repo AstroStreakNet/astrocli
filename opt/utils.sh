@@ -81,16 +81,16 @@ conditional_find() {
             "$value" =~ ^[[:space:]]*-?[0-9]+[[:space:]]*$ ]];
 
         then
-            # perform integer comparisons based on the conditions
-            if [[ -n "$gt_value" ]]; then
+            if [[ -n "$gt_value" ]] && [[ -n "$lt_value" ]]; then
+                compare_value_int "$value" -gt "$gt_value" && \
+                    compare_value_int "$value" -lt "$lt_value" || \
+                    match=false
+
+            elif [[ -n "$gt_value" ]]; then
                 compare_value_int "$value" -gt "$gt_value" || match=false
-            fi
-
-            if [[ -n "$lt_value" ]]; then
+            elif [[ -n "$lt_value" ]]; then
                 compare_value_int "$value" -lt "$lt_value" || match=false
-            fi
-
-            if [[ -n "$eq_value" ]]; then
+            elif [[ -n "$eq_value" ]]; then
                 compare_value_int "$value" "=" "$eq_value" || match=false
             fi
 
