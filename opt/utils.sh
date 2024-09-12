@@ -38,21 +38,26 @@ compare_value_int() {
 
 # handle find operation with conditions like -gt, -lt, or range
 conditional_find() {
-    local key="$1"
-    shift 1
-
     local gt_value=""
     local lt_value=""
     local eq_value=""
 
-    # parse parameters for -gt, -lt, or exact value
-    while [[ "$#" -gt 0 ]]; do
-        case "$1" in
-            -gt) shift; gt_value="$1" ;;
-            -lt) shift; lt_value="$1" ;;
-            *) eq_value="$1" ;; # assume it's an exact match if no operator
+    local i=0
+    while [[ $i -lt ${#values[@]} ]]; do
+        case "${values[$i]}" in
+            -gt)
+                ((i++))
+                gt_value="${values[$i]}"
+                ;;
+            -lt)
+                ((i++))
+                lt_value="${values[$i]}"
+                ;;
+            *)
+                eq_value="${values[$i]}"
+                ;;
         esac
-        shift
+        ((i++))
     done
 
     # initialize an array to store matching files
@@ -140,12 +145,44 @@ case $1 in
         exit 105
     }
 
-    # pass the array of files and other parameters to conditional_find
-    conditional_find "$3" "${@:4}"
-    ;;
+
+    # some black magic to break input into key and pair.
+    # working on this algorithm i've come to further appreciate RISC arch for
+    # its orthogonal ISA. having something like that here would have been much
+    # simpler to program - but then again RISC got its design considerations for
+    # the perspective of compiler and not human, i.e., not the best user exp
+
+    atFlag=false
+    key=""
+    values=()
+
+    for i in $(seq 3 $#); do
+        if [[ ${!i} == -* ]]; then
+            atFlag=true
+        fi
+
+        if [ "$atFlag" = "true" ]; then
+            values+=("${!i}")
+            if [[ ${!i} != -* ]]; then
+                atFlag=false
+            fi
+
+        else
+            if [ -n "$key" ] && [ -n "$values" ]; then
+                conditional_find
+                values=()
+            fi
+
+            key="${!i}"
+            atFlag=true
+        fi
+    done
+    conditional_find
+;;
+
 
 *)
     bash $PRINT_ERROR 200 "Invalid Use: Utils"
-    ;;
+;;
 esac
 
