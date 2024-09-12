@@ -61,7 +61,7 @@ conditional_find() {
     done
 
     # initialize an array to store matching files
-    matching_files=()
+    local matching_files=()
 
     # iterate through the array of files
     for file in "${files[@]}"; do
@@ -76,8 +76,10 @@ conditional_find() {
         [[ -z "$value" ]] && continue
 
         local match=true
+
         if [[ "$value" =~ ^[[:space:]]*-?[0-9]*[.][0-9]+[[:space:]]*$ ||\
             "$value" =~ ^[[:space:]]*-?[0-9]+[[:space:]]*$ ]];
+
         then
             # perform integer comparisons based on the conditions
             if [[ -n "$gt_value" ]]; then
@@ -91,6 +93,7 @@ conditional_find() {
             if [[ -n "$eq_value" ]]; then
                 compare_value_int "$value" "=" "$eq_value" || match=false
             fi
+
         else
             # perform string comparisons for lowercase values
             local raw_eq_value=$(echo "$eq_value" | tr '[:upper:]' '[:lower:]')
@@ -113,12 +116,10 @@ conditional_find() {
 
     # print out the list of matching files
     if [[ "${#matching_files[@]}" -gt 0 ]]; then
-        echo "Matching files:"
-        for file in "${matching_files[@]}"; do
-            echo "$file"
-        done
+        files=("${matching_files[@]}")
     else
-        echo "No matching files found."
+        $PRINT_ERROR 102 "No matching files found."
+        exit 102
     fi
 }
 
@@ -129,7 +130,7 @@ case $1 in
 "find")
     # check $2 is a valid path
     [ -d "$2" ] || {
-        bash $PRINT_ERROR 101 "Invalid Path: $2"
+        $PRINT_ERROR 101 "Invalid Path: $2"
         exit 101
     }
 
@@ -141,7 +142,7 @@ case $1 in
 
     # ensure enough parameters are passed
     [ -n "$3" ] && [ -n "$4" ] || {
-        bash $PRINT_ERROR 105 "Missing Find Parameters"
+        $PRINT_ERROR 105 "Missing Find Parameters"
         exit 105
     }
 
@@ -178,11 +179,15 @@ case $1 in
         fi
     done
     conditional_find
+
+    for file in "${files[@]}"; do
+        echo "$file"
+    done
 ;;
 
 
 *)
-    bash $PRINT_ERROR 200 "Invalid Use: Utils"
+    $PRINT_ERROR 200 "Invalid Use: Utils"
 ;;
 esac
 

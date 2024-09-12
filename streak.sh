@@ -100,7 +100,7 @@ INSTALL_STREAK() {
 #     $ find . -type f | streal upload
 CHECK_MISSING "xargs" false
 
-# required to download requested images, and program files
+# required to download selected images, and program files
 CHECK_MISSING "curl" true
 
 # check installation path
@@ -119,7 +119,7 @@ if [ -d "$INSTALL_PATH" ]; then
 		fi
 	done
 else
-	bash "$INSTALL_PATH/print.sh" "PROMPT_NEW"
+	"$INSTALL_PATH/print.sh" "PROMPT_NEW"
 	INSTALL_STREAK
 fi
 
@@ -141,28 +141,28 @@ if [ ! -t 0 ]; then ARGS+=" $(xargs)"; fi
 
 case "$CMD" in
 	"--help" | "-h" | "help")
-		bash "$INSTALL_PATH/print.sh" "PROMPT_HELP"
+		"$INSTALL_PATH/print.sh" "PROMPT_HELP"
 		;;
 
 	"upload" | "u")
-		bash "$INSTALL_PATH/upload.sh" $ARGS
+		"$INSTALL_PATH/upload.sh" $ARGS
 		;;
 
 	"browse" | "b")
-		bash "$INSTALL_PATH/browse.sh" $ARGS
+		"$INSTALL_PATH/browse.sh" $ARGS
 		;;
 
 	"download" | "d")
-		bash "$INSTALL_PATH/download.sh" $ARGS
+		"$INSTALL_PATH/download.sh" $ARGS
 		;;
 
 	"debug" | "x" | "whatis")
-		bash "$INSTALL_PATH/debug.sh" $ARGS
+		"$INSTALL_PATH/debug.sh" $ARGS
 		;;
 
 	*)
-		bash "$INSTALL_PATH/print.sh" "ERROR" 100 "Invalid usage $CMD"
-		bash "$INSTALL_PATH/print.sh" "PROMPT_HELP"
+		$PRINT_ERROR 100 "Invalid usage $CMD"
+		"$INSTALL_PATH/print.sh" "PROMPT_HELP"
 		;;
 esac
 
