@@ -64,7 +64,7 @@ conditional_find() {
     local matching_files=()
 
     # iterate through the array of files
-    for file in "${files[@]}"; do
+    for file in "${FILES[@]}"; do
         # extract the value for the given key from the file
         value=$(strings "$file" |
             tr '/' '\n' |
@@ -116,87 +116,67 @@ conditional_find() {
 
     # print out the list of matching files
     if [[ "${#matching_files[@]}" -gt 0 ]]; then
-        files=("${matching_files[@]}")
+        FILES=("${matching_files[@]}")
     else
         $PRINT_ERROR 102 "No matching files found."
         exit 102
     fi
 }
 
+
 # actions ----------------------------------------------------------------------
 
-case $1 in
+# check $1 is a valid path
+[ -d "$1" ] || {
+    $PRINT_ERROR 101 "Invalid Path: $2"
+    exit 101
+}
 
-"find")
-    # check $2 is a valid path
-    [ -d "$2" ] || {
-        $PRINT_ERROR 101 "Invalid Path: $2"
-        exit 101
-    }
+# perform the find operation and manually store results in an array
+FILES=()
+while IFS= read -r file; do
+    FILES+=("$file")
+done < <(find "$1" -maxdepth 1 -iname '*.fit*')
 
-    # perform the find operation and manually store results in an array
-    files=()
-    while IFS= read -r file; do
-        files+=("$file")
-    done < <(find "$2" -maxdepth 1 -iname '*.fit*')
-
-    # ensure enough parameters are passed
-    [ -n "$3" ] && [ -n "$4" ] || {
-        $PRINT_ERROR 105 "Missing Find Parameters"
-        exit 105
-    }
+# ensure enough parameters are passed
+[ -n "$2" ] && [ -n "$3" ] || {
+    $PRINT_ERROR 105 "Missing Find Parameters"
+    exit 105
+}
 
 
-    # some black magic to break input into key and pair.
-    # working on this algorithm i've come to further appreciate RISC arch for
-    # its orthogonal ISA. having something like that here would have been much
-    # simpler to program - but then again RISC got its design considerations for
-    # the perspective of compiler and not human, i.e., not the best user exp
+# some black magic to break input into key and pair. working on this algorithm
+# i've come to further appreciate RISC arch for its orthogonal ISA. having
+# something like that here would have been much simpler to program - but then
+# again RISC got its design considerations for the perspective of compiler and
+# not human, i.e., not the best user exp
 
-    atFlag=false
-    key=""
-    values=()
+atFlag=false
+key=""
+values=()
 
-    for i in $(seq 3 $#); do
-        if [[ ${!i} == -* ]]; then
-            atFlag=true
+for i in $(seq 2 $#); do
+    if [[ ${!i} == -* ]]; then
+        atFlag=true
+    fi
+
+    if [ "$atFlag" = "true" ]; then
+        values+=("${!i}")
+        if [[ ${!i} != -* ]]; then
+            atFlag=false
         fi
 
-        if [ "$atFlag" = "true" ]; then
-            values+=("${!i}")
-            if [[ ${!i} != -* ]]; then
-                atFlag=false
-            fi
-
-        else
-            if [ -n "$key" ] && [ -n "$values" ]; then
-                conditional_find
-                values=()
-            fi
-
-            key="${!i}"
-            atFlag=true
+    else
+        if [ -n "$key" ] && [ -n "$values" ]; then
+            conditional_find
+            values=()
         fi
-    done
-    conditional_find
 
-    for file in "${files[@]}"; do
-        echo "$file"
-    done
-;;
+        key="${!i}"
+        atFlag=true
+    fi
+done
+conditional_find
 
-
-
-"fzf")
-    shift
-    for file in "$@"; do
-        echo "$file"
-    done | fzf -m
-;;
-
-
-*)
-    $PRINT_ERROR 200 "Invalid Use: Utils"
-;;
-esac
+echo "${FILES[@]}"
 

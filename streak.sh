@@ -114,8 +114,8 @@ CHECK_MISSING "fzf"  false
 if [ -d "$INSTALL_PATH" ]; then
 	scripts=(
 		"bin" # program binary
-		"debug.sh" "print.sh"                            # more info
-		"upload.sh" "utils.sh" "download.sh" "browse.sh" # binary wrapper
+		"debug.sh" "print.sh" "grepfind.sh"         # more control
+		"upload.sh" "download.sh" "browse.sh"       # binary wrapper
 	)
 
 	for file in "${scripts[@]}"; do
