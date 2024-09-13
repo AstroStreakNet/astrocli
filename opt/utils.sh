@@ -186,6 +186,15 @@ case $1 in
 ;;
 
 
+
+"fzf")
+    shift
+    for file in "$@"; do
+        echo "$file"
+    done | fzf -m
+;;
+
+
 *)
     $PRINT_ERROR 200 "Invalid Use: Utils"
 ;;
