@@ -103,6 +103,13 @@ CHECK_MISSING "xargs" false
 # required to download selected images, and program files
 CHECK_MISSING "curl" true
 
+# required to search through fits header data and make comparisions
+CHECK_MISSING "bc" true
+
+# optional dependency. useful within various subcommands
+CHECK_MISSING "fzf"  false
+
+
 # check installation path
 if [ -d "$INSTALL_PATH" ]; then
 	scripts=(
