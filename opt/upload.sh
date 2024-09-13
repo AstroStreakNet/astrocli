@@ -52,8 +52,15 @@ StreakType          = \"\" # eg:
     echo $toml_file
 }
 
+
 generate_toml() {
+    local toml_file=$2
+
     # if starts with . replace with $pwd
+    if [[ $1 == .* ]]; then
+        set -- "$(pwd)${1:1}"
+    fi
+
     echo "[properties.$1]
 Telescope			= \"\"
 ObservatoryCode		= \"\"
@@ -62,9 +69,10 @@ Declination			= \"\"
 JulianDate			= \"\"
 ExposureDuration	= \"\"
 StreakType			= \"\"
-" >> $2
+" >> $toml_file
 
 }
+
 
 [ -n "$1" ] || {
     $PRINT_ERROR 104 "Missing Arguments"
