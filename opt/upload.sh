@@ -7,6 +7,7 @@
 
 help_dialogue() {
     echo -e "# print usage example"
+
 }
 
 touch_toml() {
@@ -52,27 +53,43 @@ StreakType          = \"\" # eg:
     echo $toml_file
 }
 
-
 generate_toml() {
+    local file_path=$1
     local toml_file=$2
 
+    get_value() {
+        value=$(strings "$file_path" |
+            tr '/' '\n' |
+            grep -m 1 -ioE "$1\s*=\s*.*" |
+            cut -d '=' -f 2
+        )
+
+        # remove leading and tailing whitespace
+        value="${value#"${value%%[![:space:]]*}"}"  # leading 
+        value="${value%"${value##*[![:space:]]}"}"  # trailing
+
+        echo "$value" | tr -d "'"
+    }
+
     # if starts with . replace with $pwd
-    if [[ $1 == .* ]]; then
-        set -- "$(pwd)${1:1}"
+    if [[ $file_path == .* ]]; then
+        file_path="$(pwd)${file_path:1}"
     fi
 
-    echo "[properties.$1]
-Telescope			= \"\"
-ObservatoryCode		= \"\"
-RightAscension		= \"\"
-Declination			= \"\"
-JulianDate			= \"\"
-ExposureDuration	= \"\"
+    echo "[properties.$file_path]
+Telescope			= \"$(get_value 'TELESCOP')\"
+ObservatoryCode		= \"$(get_value 'OBSERVAT')\"
+RightAscension		= \"$(get_value 'RA')\"
+Declination			= \"$(get_value 'DEC')\"
+JulianDate			= \"$(get_value 'JD')\"
+ExposureDuration	= \"$(get_value 'EXPOSURE')\"
 StreakType			= \"\"
 " >> $toml_file
 
 }
 
+
+# helper -----------------------------------------------------------------------
 
 [ -n "$1" ] || {
     $PRINT_ERROR 104 "Missing Arguments"
@@ -141,7 +158,15 @@ case $1 in
         fi
     done
 
-    # $BIN $TOML_FILE
+    line_count=$(wc -l < "$TOML_FILE")
+    if (( line_count > 21 )); then
+        $EDITOR "$TOML_FILE"
+        # $BIN $TOML_FILE
+
+    else
+        echo "invalid"
+    fi
+
     rm $TOML_FILE
 ;;
 
