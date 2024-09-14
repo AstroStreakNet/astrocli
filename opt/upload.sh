@@ -76,7 +76,7 @@ generate_toml() {
         file_path="$(pwd)${file_path:1}"
     fi
 
-    echo "[properties.$file_path]
+    echo "[properties.\"$file_path\"]
 Telescope			= \"$(get_value 'TELESCOP')\"
 ObservatoryCode		= \"$(get_value 'OBSID')\"
 RightAscension		= \"$(get_value 'RA')\"
@@ -138,7 +138,7 @@ case $1 in
 
     $EDITOR "$TOML_FILE"
 
-    # $BIN $TOML_FILE
+    $BIN "upload" "$TOML_FILE"
     rm $TOML_FILE
 ;;
 
@@ -161,7 +161,7 @@ case $1 in
     line_count=$(wc -l < "$TOML_FILE")
     if (( line_count > 21 )); then
         $EDITOR "$TOML_FILE"
-        # $BIN $TOML_FILE
+        $BIN "upload" "$TOML_FILE"
 
     else
         echo "invalid"
