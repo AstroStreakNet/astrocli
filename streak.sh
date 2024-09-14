@@ -143,7 +143,6 @@ export PRINT_WARNING="$INSTALL_PATH/print.sh WARN"
 
 CMD=$1
 shift
-ARGS="$@"
 if [ ! -t 0 ]; then ARGS+=" $(xargs)"; fi
 
 case "$CMD" in
@@ -152,19 +151,19 @@ case "$CMD" in
 		;;
 
 	"upload" | "u")
-		"$INSTALL_PATH/upload.sh" $ARGS
+		"$INSTALL_PATH/upload.sh" "$@"
 		;;
 
 	"browse" | "b")
-		"$INSTALL_PATH/browse.sh" $ARGS
+		"$INSTALL_PATH/browse.sh" "$@"
 		;;
 
 	"download" | "d")
-		"$INSTALL_PATH/download.sh" $ARGS
+		"$INSTALL_PATH/download.sh" "$@"
 		;;
 
 	"debug" | "x" | "whatis")
-		"$INSTALL_PATH/debug.sh" $ARGS
+		"$INSTALL_PATH/debug.sh" "$@"
 		;;
 
 	*)

@@ -107,6 +107,7 @@ case $1 in
 ;;
 
 "find")
+    FILES=()
     TOML_FILE=$(touch_toml)
     if [ -z "$TOML_FILE" ]; then
         $PRINT_ERROR 204 "Unable to create buffer. Tried /tmp & $HOME"
@@ -115,12 +116,9 @@ case $1 in
 
     # narrow results with fzf
     if [[ "$(echo "$2" | tr '[:upper:]' '[:lower:]')" == "fzf" ]]; then
-        IFS=' ' read -r -a buffer <<< $("$INSTALL_PATH/grepfind.sh" "${@:3}")
-        IFS=' ' read -r -a FILES <<< $(
-            for file in "${buffer[@]}"; do
-                echo "$file"
-            done | fzf --multi | tr '\n' ' '
-        )
+        while IFS= read -r line; do
+            FILES+=("$line")
+        done < <("$INSTALL_PATH/grepfind.sh" "${@:3}" | fzf --multi)
 
         if [ -z "$FILES" ]; then
             echo "No selection made"
@@ -129,7 +127,9 @@ case $1 in
         fi
 
     else
-        IFS=' ' read -r -a FILES <<< $("$INSTALL_PATH/grepfind.sh" "${@:2}")
+        while IFS= read -r line; do
+            FILES+=("$line")
+        done < <("$INSTALL_PATH/grepfind.sh" "${@:2}")
     fi
 
     for file in "${FILES[@]}"; do
@@ -150,7 +150,7 @@ case $1 in
         exit 204
     fi
 
-    for file in "${@:2}"; do
+    for file in "${@:1}"; do
         if [ -e "$file" ]; then
             generate_toml "$file" "$TOML_FILE"
         else
@@ -164,7 +164,7 @@ case $1 in
         $BIN "upload" "$TOML_FILE"
 
     else
-        echo "invalid"
+        echo "am i the issue?"
     fi
 
     rm $TOML_FILE

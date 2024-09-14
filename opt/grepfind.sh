@@ -178,5 +178,7 @@ for i in $(seq 2 $#); do
 done
 conditional_find
 
-echo "${FILES[@]}"
+for file in "${FILES[@]}"; do
+    echo "$file"
+done
 
