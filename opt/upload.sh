@@ -35,12 +35,12 @@ touch_toml() {
 
 # Fill default with properties common for all uploads
 [properties.default]
-Telescope           = \"\"
-ObservatoryCode     = \"\"
+Telescope           = \"\" # TELESCOP
+ObservatoryCode     = \"\" # OBSID
 RightAscension      = \"\" # RA
 Declination         = \"\" # DEC
-JulianDate          = \"\" # mm/dd/yyyy
-ExposureDuration    = \"\" # hh:mm
+JulianDate          = \"\" # JD
+ExposureDuration    = \"\" # EXPOSURE
 StreakType          = \"\" # eg:
                          # \"Cosmic Ray\", \"Resident Space Object\",
                          # \"Near Earth Object\", \"Detector Artifact\"
@@ -78,7 +78,7 @@ generate_toml() {
 
     echo "[properties.$file_path]
 Telescope			= \"$(get_value 'TELESCOP')\"
-ObservatoryCode		= \"$(get_value 'OBSERVAT')\"
+ObservatoryCode		= \"$(get_value 'OBSID')\"
 RightAscension		= \"$(get_value 'RA')\"
 Declination			= \"$(get_value 'DEC')\"
 JulianDate			= \"$(get_value 'JD')\"
