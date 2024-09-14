@@ -14,9 +14,7 @@ import (
     "fmt"
     "time"
     "bytes"
-    "bufio"
     "errors"
-    "strings"
     "strconv"
     "net/http"
     "mime/multipart"
@@ -80,83 +78,48 @@ visibility.`,
     },
 
     Run: func(cmd *cobra.Command, args []string) {
-        reader := bufio.NewReader(os.Stdin)
-
-        for i := 0; i < len(filePath); i++ {
-            // check if the file exists
-            if _, err := os.Stat(filePath[i]); os.IsNotExist(err) {
-                fmt.Printf("\033[31mFile %s does not exist. Skipping...\033[0m\n",
-                    filePath[i])
-                continue
-            }
-
-            // inform about leaving blank
-            if len(filePath) > 1 {
-                fmt.Println("\033[1;33m[From the second image onwards, leave blank to reuse previous values.]\033[0m")
-            }
-
-            fmt.Printf("Image %v of %v:\033[31m %v\n",
-                i+1, len(filePath)+1, filePath[i])
-
-            telescope = readInput(reader, "[1/7] Telescope",
-                telescope)
-
-            observatory = readInput(reader, "[2/7] Observatory Code",
-                observatory)
-
-            rightAscen = readInput(reader, "[3/7] Right Ascension, RA",
-                rightAscen)
-
-            declination = readInput(reader, "[4/7] Declination, DEC",
-                declination)
-
-            for {
-                julian = readInput(reader, "[5/7] Julian date (mm/dd/yyyy)",
-                    julian)
-
-                if _, err := time.Parse("01/02/2006", julian); err != nil {
-                    fmt.Println("\033[31mInvalid date format.")
-                } else {
-                    break
-                }
-            }
-
-            for {
-                exposure = readInput(reader, "[6/7] Exposure Duration (hh:mm)",
-                    exposure)
-
-                if _, err := time.Parse("15:04", exposure); err != nil {
-                    fmt.Println("\033[31mInvalid time format.")
-                } else {
-                    break
-                }
-            }
-
-            fmt.Println("\033[0;34m[7/7] Streak Type :\033[0;35m")
-            fmt.Println("      a. Cosmic Ray")
-            fmt.Println("      b. Resident Space Object")
-            fmt.Println("      c. Near Earth Object")
-            fmt.Println("      d. Detector Artifact")
-            fmt.Println("      e. Other")
-            streakType = readInput(reader, "Option", streakType)
-
-            postImage(filePath[i])
-            fmt.Println("")
-        }
+		generateBuffer()
+		postImage()
     },
 }
 
-func readInput(reader *bufio.Reader, prompt string, oldValue string) string {
-    fmt.Printf("\033[0;34m%v : \033[0m", prompt)
-	input, _ := reader.ReadString('\n')
-	input = strings.TrimSpace(input)
-	if input == "" {
-		return oldValue
-	}
-	return input
+func init() {
+    rootCmd.Flags().BoolVarP(&blockAI, 
+		"no-ai", "N", 
+	    false,
+		"Do not allow your images to be used for AI training",
+    )
+
+    rootCmd.Flags().BoolVarP(&blockPublic,
+		"private", "P",
+		false,
+		"Upload privately. Default Public",
+    )
+
+    rootCmd.CompletionOptions.DisableDefaultCmd = true
+    rootCmd.Flags().MarkHidden("help")
 }
 
-func postImage(singleFile string) {
+// Helper functions ------------------------------------------------------------
+
+// Generate the image info buffer file
+func generateBuffer() {
+	for i := 0; i < len(filePath); i++ {
+		// check if the file exists
+		if _, err := os.Stat(filePath[i]); os.IsNotExist(err) {
+			fmt.Printf("\033[31mFile %s does not exist. Skipping...\033[0m\n",
+			filePath[i])
+			continue
+		}
+
+		// add entries to buffer toml file
+	}
+}
+
+// Post all images to the server
+func postImage() {
+	singleFile := "" // placeholder
+
     // open the file
     file, err := os.Open(singleFile)
     if err != nil {
@@ -229,22 +192,5 @@ func postImage(singleFile string) {
     defer resp.Body.Close()
 
     fmt.Println("Server Response:", resp.Status)
-}
-
-func init() {
-    rootCmd.Flags().BoolVarP(&blockAI, 
-		"no-ai", "N", 
-	    false,
-		"Do not allow your images to be used for AI training",
-    )
-
-    rootCmd.Flags().BoolVarP(&blockPublic,
-		"private", "P",
-		false,
-		"Upload privately. Default Public",
-    )
-
-    rootCmd.CompletionOptions.DisableDefaultCmd = true
-    rootCmd.Flags().MarkHidden("help")
 }
 

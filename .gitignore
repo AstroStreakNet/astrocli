@@ -7,4 +7,6 @@ go.sum
 
 bin/
 test/
+sample/
+opt/bin
 
