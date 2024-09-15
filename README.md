@@ -1,52 +1,65 @@
-
 # Streak
 
-Streak is a utility tool for managing and interacting with the AstroStreak
-platform. It is designed to be POSIX compliant, ensuring compatibility across
-different UNIX based operating systems (GNU+Linux / macos).
+Streak is a utility tool for directly uploading local images to AstroStreaknet.
 
 ## Usage
 
-Streak provides various commands for managing your AstroStreak account and
-interacting with the image database.
-
 ### Available Commands
 
-- **account:** Manage your AstroStreak account status
-- **browse:** Browse images based on specified criteria
-- **help:** Get help about any command 
+- **upload:** Upload local images to the AstroStreaknet database. This command allows you to select images, edit metadata, and specify upload options.
+  <br>commands: `streak upload`, `streak u`, `streaku`
+- **account:** Manage your AstroStreaknet account. This command allows you to log in, log out, and view account information.
+  <br>Commands: `streak account`, `streak a`
+- **debug:** Get detailed information about warnings or error codes. This command helps you troubleshoot issues with the tool.
+  <br>Commands: `streak debug`, `streak x`, `streak whatis`
+- **help:** Show help information for a command. This command provides detailed information about each command and its options.
+  <br>Commands: `streak help`, `streak h`, `streak --help`, `streak -h`
 
-### Example Usage 
+#### \* `streaku` command could be used as an alias for `streak upload`.
 
-Upload images from the *"captures"* directory within ~/Pictures to the database
-with public visibility but without granting AI training permissions.
+
+### Working Overview:
+
+- Selecting the images you wish to upload would be parsed.
+- A template toml file would be generated, prefilled with all relevant information it could read from the files.
+- The information could be edited, either for each file individually, or as a common constant for all files.
+- You can specify whether the files should be uploaded as public or private.
+- You can specify whether the files can be used for AI training.
+
+### Examples Usecase:
+
+#### 1. Upload all images saved at `~/Pictures/saves`.
 ```sh
-$ streak --no-ai ~/Pictures/captures/*
-$ streak -N ~/Pictures/captures/*
+$ streak upload ~/Pictures/saves/*
 ```
 
-Upload all FITS files captured today located in the *"saves"* directory within
-the ~/Pictures with default flags.
+#### 2. Upload all images saved at `~/Pictures/saves` with blue FILTER and FOCALLEN in the range 2000-3000
 ```sh
-$ streak $(find ~/Pictures/saves/ -iname "*.fits" -type f -mtime -1)
-$ find ~/Pictures/saves/ -iname "*.fits" -type f -mtime -1 | streak)
+$ streak upload find ~/Pictures/saves/* filter blue focallen -gt 2000 -lt 3000
+```
+PS: Results can be further narrowed down using the [fzf](https://github.com/junegunn/fzf) 
+fuzzy-finder with the syntax:<br> `$ streak upload find fzf [PATH] [CONDITIONS....]`
+
+#### 3. Login into your AstroStreaknet account
+```sh
+$ streak account login
 ```
 
-Count the number of images containing both the sun and the moon but not any
-asteroids.
+#### 4. Get overview, syntax, and examples for find command
 ```sh
-$ streak browse --all --contains "sun moon" --not-contains "astroid" | wc -l
-$ streak browse -A -c "sun moon" -C "astroid" | wc -l
+$ streak upload help
 ```
 
-Download all images uploaded on February 26, 2024, permitted for AI training,
-and save them in a directory named *"saved"* within the ~/Pictures.
+#### 5. Get more information error code 400 error code, with ways to possibly resolve them
 ```sh
-$ streak browse --all --trainable --date "26-02-2024" --save ~/Pictures/saved
-$ streak browse -A -t -d "26-02-2024" -s ~/Pictures/saved
+$ streak debug 400
 ```
 
-## Project Origin
-Streak was developed as a final year project for the Software Engineering
-Honours program at Swinburne University of Technology.
+
+## Troubleshooting
+If you encounter any issues with the tool, you can use the streak debug command to get more information. You can also report bugs or submit pull requests on our GitHub page.
+
+
+## License
+The Streak tool is released under the [Apache2](./LICENSE) License.
 
