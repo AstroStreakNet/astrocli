@@ -37,6 +37,8 @@ RightAscension      = \"\" # RA
 Declination         = \"\" # DEC
 JulianDate          = \"\" # JD
 ExposureDuration    = \"\" # EXPOSURE
+PublicView          = \"true\" # Make your uploads publicly visible
+AllowAITraining     = \"true\" # Permit your uploads to be used for AI training
 StreakType          = \"\" # eg:
                          # \"Cosmic Ray\", \"Resident Space Object\",
                          # \"Near Earth Object\", \"Detector Artifact\"

@@ -57,6 +57,8 @@ RightAscension		= \"$(get_value 'RA')\"
 Declination			= \"$(get_value 'DEC')\"
 JulianDate			= \"$(get_value 'JD')\"
 ExposureDuration	= \"$(get_value 'EXPOSURE')\"
+PublicView          = \"\"
+AllowAITraining     = \"\"
 StreakType			= \"\"
 " >> $toml_file
 
@@ -142,7 +144,7 @@ case $1 in
     done
 
     line_count=$(wc -l < "$TOML_FILE")
-    if (( line_count > 21 )); then
+    if (( line_count > 23 )); then
         $EDITOR "$TOML_FILE"
         $BIN "upload" "$TOML_FILE"
 
