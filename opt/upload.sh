@@ -104,6 +104,11 @@ case $1 in
         while IFS= read -r line; do
             FILES+=("$line")
         done < <("$INSTALL_PATH/grepfind.sh" "${@:2}")
+
+        if [ -z "$FILES" ]; then
+            rm $TOML_FILE
+            exit 404
+        fi
     fi
 
     for file in "${FILES[@]}"; do
@@ -125,8 +130,12 @@ case $1 in
     fi
 
     for file in "${@:1}"; do
-        if [ -e "$file" ]; then
+        if [ -f "$file" ]; then
             generate_toml "$file" "$TOML_FILE"
+
+        elif [ -d "$file" ]; then
+            $PRINT "WARN" 406 "\"$file\" appears to be a directory. Skipping."
+
         else
             $PRINT "WARN" 404 "File \"$file\" does not exist. Skipping."
         fi

@@ -32,9 +32,10 @@ report_dialogue() {
 # 205 Invalid Internal Path
 
 # 400 Missing System Packages
-# 403 No files selected. Warning. Quit as expected
+# 403 No files selected.
 # 404 File trying to upload doesn't exist
 # 405 Path trying to find in isn't valid
+# 406 File trying to upload in isn't valid
 
 
 
@@ -122,7 +123,7 @@ case "$1" in
 
 
 
-# 4xx -FILES AND PATH ----------------------------------------------------------
+# 4xx -FILES-AND-PATH-----------------------------------------------------------
 
 "400")
     error_code 400 "Missing Essential System Package"
@@ -163,6 +164,13 @@ case "$1" in
 
 "405")
     error_code 405 "Invalid Path"
+    echo -e "\
+    ======== "
+;;
+
+
+"406")
+    error_code 406 "Invalid File Type"
     echo -e "\
     ======== "
 ;;
