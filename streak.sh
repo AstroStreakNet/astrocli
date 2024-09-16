@@ -114,8 +114,7 @@ CHECK_MISSING "fzf"  false
 if [ -d "$INSTALL_PATH" ]; then
 	scripts=(
 		"bin" # program binary
-		"debug.sh" "print.sh" "grepfind.sh"         # more control
-		"upload.sh" "download.sh" "browse.sh"       # binary wrapper
+		"debug.sh" "print.sh" "grepfind.sh" "upload.sh"
 	)
 
 	for file in "${scripts[@]}"; do
@@ -152,14 +151,6 @@ case "$CMD" in
 
 	"upload" | "u")
 		"$INSTALL_PATH/upload.sh" "$@"
-		;;
-
-	"browse" | "b")
-		"$INSTALL_PATH/browse.sh" "$@"
-		;;
-
-	"download" | "d")
-		"$INSTALL_PATH/download.sh" "$@"
 		;;
 
 	"debug" | "x" | "whatis")

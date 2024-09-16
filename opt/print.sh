@@ -29,8 +29,6 @@ command line interface for AstroStreaknet
 
 \033[33mOptions:
 \033[0m  account    \033[36mManage your AstroStreaknet account.
-\033[0m  browse     \033[36mBrowse the database for images with specific tags.
-\033[0m  download   \033[36mDownload images to a local directory.
 \033[0m  upload     \033[36mUpload local images to the AstroStreaknet database.
 \033[0m  debug      \033[36mGet detailed information about warnings or error codes.
 \033[0m  help       \033[36mShow help information for a command.
