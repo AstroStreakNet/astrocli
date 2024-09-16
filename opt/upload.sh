@@ -5,11 +5,6 @@
 
 # helper -----------------------------------------------------------------------
 
-help_dialogue() {
-    echo -e "# print usage example"
-
-}
-
 touch_toml() {
     local save_path="/tmp"
     [ -d "$save_path" ] || {
@@ -28,28 +23,7 @@ touch_toml() {
         local toml_file="$save_path/streak_buffer.toml"
     fi
 
-    echo "#
-# This buffer file is saved at $save_path. PLEASE DONT DELETE IT MANUALLY!
-# It will be deleted after use, unless the program was ^C
-#
-
-# Fill default with properties common for all uploads
-[properties.default]
-Telescope           = \"\" # TELESCOP
-ObservatoryCode     = \"\" # OBSID
-RightAscension      = \"\" # RA
-Declination         = \"\" # DEC
-JulianDate          = \"\" # JD
-ExposureDuration    = \"\" # EXPOSURE
-StreakType          = \"\" # eg:
-                         # \"Cosmic Ray\", \"Resident Space Object\",
-                         # \"Near Earth Object\", \"Detector Artifact\"
-                         # or any other
-
-
-# Leave properties empty to use default values
-# New values here would be prioritised" > $toml_file
-
+    $PRINT "TOML_TOUCH" "$save_path" > $toml_file
     echo $toml_file
 }
 
@@ -92,8 +66,8 @@ StreakType			= \"\"
 # helper -----------------------------------------------------------------------
 
 [ -n "$1" ] || {
-    $PRINT_ERROR 101 "Missing Arguments: upload"
-    help_dialogue
+    $PRINT "ERROR" 101 "Missing Arguments: upload"
+    $PRINT "HELP_UPLOAD"
     exit 101
 }
 
@@ -103,14 +77,14 @@ StreakType			= \"\"
 case $1 in
 
 "help")
-    help_dialogue
+    $PRINT "HELP_UPLOAD"
 ;;
 
 "find")
     FILES=()
     TOML_FILE=$(touch_toml)
     if [ -z "$TOML_FILE" ]; then
-        $PRINT_ERROR 205 "Unable to create buffer. Tried /tmp & $HOME"
+        $PRINT "ERROR" 205 "Unable to create buffer. Tried /tmp & $HOME"
         exit 205
     fi
 
@@ -121,7 +95,7 @@ case $1 in
         done < <("$INSTALL_PATH/grepfind.sh" "${@:3}" | fzf --multi)
 
         if [ -z "$FILES" ]; then
-            echo "No selection made."
+            $PRINT "EROR" 403 "No selection made."
             rm $TOML_FILE
             exit 403
         fi
@@ -146,7 +120,7 @@ case $1 in
 *)
     TOML_FILE=$(touch_toml)
     if [ -z "$TOML_FILE" ]; then
-        $PRINT_ERROR 204 "Unable to create buffer. Tried /tmp & $HOME"
+        $PRINT "ERROR" 204 "Unable to create buffer. Tried /tmp & $HOME"
         exit 204
     fi
 
@@ -154,7 +128,7 @@ case $1 in
         if [ -e "$file" ]; then
             generate_toml "$file" "$TOML_FILE"
         else
-            $PRINT_WARNING 404 "File \"$file\" does not exist. Skipping."
+            $PRINT "WARN" 404 "File \"$file\" does not exist. Skipping."
         fi
     done
 
@@ -164,7 +138,7 @@ case $1 in
         $BIN "upload" "$TOML_FILE"
 
     else
-        $PRINT_ERROR 404 "No files found."
+        $PRINT "ERROR" 404 "No files found."
     fi
 
     rm $TOML_FILE

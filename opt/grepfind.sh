@@ -23,7 +23,7 @@ compare_value_int() {
             result=$(echo "$value1 > $value2" | bc)
             ;;
         *)
-            $PRINT_ERROR 202 "Invalid operator in compare_value_int()"
+            $PRINT "ERROR" 202 "Invalid operator in compare_value_int()"
             exit 202
             ;;
     esac
@@ -118,7 +118,7 @@ conditional_find() {
     if [[ "${#matching_files[@]}" -gt 0 ]]; then
         FILES=("${matching_files[@]}")
     else
-        $PRINT_ERROR 404 "No matching files found."
+        $PRINT "ERROR" 404 "No matching files found."
         exit 404
     fi
 }
@@ -128,7 +128,7 @@ conditional_find() {
 
 # check $1 is a valid path
 [ -d "$1" ] || {
-    $PRINT_ERROR 405 "Invalid Path: $2"
+    $PRINT "ERROR" 405 "Invalid Path: $2"
     exit 405
 }
 
@@ -140,10 +140,9 @@ done < <(find "$1" -maxdepth 1 -iname '*.fit*')
 
 # ensure enough parameters are passed
 [ -n "$2" ] && [ -n "$3" ] || {
-    $PRINT_ERROR 101 "Missing Arguments: upload find"
+    $PRINT "ERROR" 101 "Missing Arguments: upload find"
     exit 101
 }
-
 
 # some black magic to break input into key and pair. working on this algorithm
 # i've come to further appreciate RISC arch for its orthogonal ISA. having

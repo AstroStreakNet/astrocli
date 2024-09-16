@@ -6,7 +6,7 @@
 #- HELPER FUNCTIONS ------------------------------------------------------------
 
 export INSTALL_PATH="/opt/streak"
-export BIN="$INSTALL_PATH/bin"
+export BIN="$INSTALL_PATH/gobinary"
 
 CHECK_MISSING () {
 	command -v "$1" > /dev/null 2>&1 && return
@@ -113,7 +113,7 @@ CHECK_MISSING "fzf"  false
 # check installation path
 if [ -d "$INSTALL_PATH" ]; then
 	scripts=(
-		"bin" # program binary
+		"gobinary" # program binary
 		"debug.sh" "print.sh" "grepfind.sh" "upload.sh"
 	)
 
@@ -134,8 +134,7 @@ fi
 
 # script calls very commonly required in various different scripts
 
-export PRINT_ERROR="$INSTALL_PATH/print.sh ERROR"
-export PRINT_WARNING="$INSTALL_PATH/print.sh WARN"
+export PRINT="$INSTALL_PATH/print.sh"
 
 
 #- RUN STREAK ------------------------------------------------------------------
@@ -146,7 +145,7 @@ if [ ! -t 0 ]; then ARGS+=" $(xargs)"; fi
 
 case "$CMD" in
 	"--help" | "-h" | "help")
-		"$INSTALL_PATH/print.sh" "PROMPT_HELP"
+		"$INSTALL_PATH/print.sh" "HELP_STREAK"
 		;;
 
 	"upload" | "u")
@@ -157,9 +156,13 @@ case "$CMD" in
 		"$INSTALL_PATH/debug.sh" "$@"
 		;;
 
+    "")
+		"$INSTALL_PATH/print.sh" "HELP_STREAK"
+        ;;
+
 	*)
-		$PRINT_ERROR 100 "Invalid usage $CMD"
-		"$INSTALL_PATH/print.sh" "PROMPT_HELP"
+		$PRINT "ERROR" 100 "Invalid usage $CMD"
+		"$INSTALL_PATH/print.sh" "HELP_STREAK"
 		;;
 esac
 
