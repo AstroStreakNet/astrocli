@@ -140,8 +140,18 @@ export PRINT="$INSTALL_PATH/print.sh"
 #- RUN STREAK ------------------------------------------------------------------
 
 CMD=$1
+ARGS=()
 shift
-if [ ! -t 0 ]; then ARGS+=" $(xargs)"; fi
+
+for argument in "${@}"; do
+    ARGS+=("$argument")
+done
+
+if [ ! -t 0 ]; then
+    while IFS= read -r result; do
+        ARGS+=("$result")
+    done
+fi
 
 case "$CMD" in
 	"--help" | "-h" | "help")
@@ -149,11 +159,11 @@ case "$CMD" in
 		;;
 
 	"upload" | "u")
-		"$INSTALL_PATH/upload.sh" "$@"
+		"$INSTALL_PATH/upload.sh" "${ARGS[@]}"
 		;;
 
 	"debug" | "x" | "whatis")
-		"$INSTALL_PATH/debug.sh" "$@"
+		"$INSTALL_PATH/debug.sh" "${ARGS[@]}"
 		;;
 
     "")
