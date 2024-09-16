@@ -92,9 +92,9 @@ StreakType			= \"\"
 # helper -----------------------------------------------------------------------
 
 [ -n "$1" ] || {
-    $PRINT_ERROR 104 "Missing Arguments"
+    $PRINT_ERROR 101 "Missing Arguments: upload"
     help_dialogue
-    exit 1
+    exit 101
 }
 
 
@@ -110,8 +110,8 @@ case $1 in
     FILES=()
     TOML_FILE=$(touch_toml)
     if [ -z "$TOML_FILE" ]; then
-        $PRINT_ERROR 204 "Unable to create buffer. Tried /tmp & $HOME"
-        exit 204
+        $PRINT_ERROR 205 "Unable to create buffer. Tried /tmp & $HOME"
+        exit 205
     fi
 
     # narrow results with fzf
@@ -121,9 +121,9 @@ case $1 in
         done < <("$INSTALL_PATH/grepfind.sh" "${@:3}" | fzf --multi)
 
         if [ -z "$FILES" ]; then
-            echo "No selection made"
-            exit
+            echo "No selection made."
             rm $TOML_FILE
+            exit 403
         fi
 
     else
@@ -154,7 +154,7 @@ case $1 in
         if [ -e "$file" ]; then
             generate_toml "$file" "$TOML_FILE"
         else
-            echo "The file $file does not exist. Skipping."
+            $PRINT_WARNING 404 "File \"$file\" does not exist. Skipping."
         fi
     done
 
@@ -164,7 +164,7 @@ case $1 in
         $BIN "upload" "$TOML_FILE"
 
     else
-        echo "am i the issue?"
+        $PRINT_ERROR 404 "No files found."
     fi
 
     rm $TOML_FILE

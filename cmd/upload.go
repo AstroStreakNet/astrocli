@@ -7,9 +7,11 @@
 package cmd
 
 import (
+    "os"
     "fmt"
     "github.com/BurntSushi/toml"
 )
+
 
 //- Data Structures ------------------------------------------------------------
 
@@ -30,11 +32,11 @@ type Config struct {
 
 //- Helper ---------------------------------------------------------------------
 
-func overrideDefault( aValue, aDefaultValue string ) string {
-    if aValue != "" {
-        return aValue
+func overrideDefault( aValue, aDefaultValue *string ) string {
+    if *aValue != "" {
+        return *aValue
     }
-    return aDefaultValue
+    return *aDefaultValue
 }
 
 func makeRequest( aFilePath *string, aFileData Properties ) {
@@ -55,31 +57,41 @@ func makeRequest( aFilePath *string, aFileData Properties ) {
 func StreakUpload( aTOMLfile string ) {
     var lConfig Config
     if _, err := toml.DecodeFile( aTOMLfile, &lConfig ); err != nil {
-        fmt.Println( "Error decoding TOML file:", err )
+        fmt.Fprintf( os.Stderr,
+            "\033[31mError 204:\033[0m Decoding TOML file.\n%v\n", err )
+
         return
     }
 
     // Get the default properties
-    defaultProperties, ok := lConfig.Properties["default"]
-    if !ok {
-        fmt.Println( "Error: No default properties found in TOML file" )
-        return
+    var lDefaults Properties
+    lDefaults, err := lConfig.Properties["default"]
+    if err {
+        lDefaults = Properties {
+            Telescope: "",
+            ObservatoryCode: "",
+            RightAscension: "",
+            Declination: "",
+            JulianDate: "",
+            ExposureDuration: "",
+            StreakType: "",
+        }
     }
 
     // Iterate over the properties, skipping the default one
-    for path, property := range lConfig.Properties {
-        if path == "default" {
+    for lPath, lValues := range lConfig.Properties {
+        if lPath == "default" {
             continue
         }
 
-        makeRequest( &path, Properties{
-            Telescope       : overrideDefault(property.Telescope, defaultProperties.Telescope),
-            ObservatoryCode : overrideDefault(property.ObservatoryCode, defaultProperties.ObservatoryCode),
-            RightAscension  : overrideDefault(property.RightAscension, defaultProperties.RightAscension),
-            Declination     : overrideDefault(property.Declination, defaultProperties.Declination),
-            JulianDate      : overrideDefault(property.JulianDate, defaultProperties.JulianDate),
-            ExposureDuration: overrideDefault(property.ExposureDuration, defaultProperties.ExposureDuration),
-            StreakType      : overrideDefault(property.StreakType, defaultProperties.StreakType),
+        makeRequest( &lPath, Properties {
+            Telescope       : overrideDefault(&lValues.Telescope, &lDefaults.Telescope),
+            ObservatoryCode : overrideDefault(&lValues.ObservatoryCode, &lDefaults.ObservatoryCode),
+            RightAscension  : overrideDefault(&lValues.RightAscension, &lDefaults.RightAscension),
+            Declination     : overrideDefault(&lValues.Declination, &lDefaults.Declination),
+            JulianDate      : overrideDefault(&lValues.JulianDate, &lDefaults.JulianDate),
+            ExposureDuration: overrideDefault(&lValues.ExposureDuration, &lDefaults.ExposureDuration),
+            StreakType      : overrideDefault(&lValues.StreakType, &lDefaults.StreakType),
         })
     }
 }

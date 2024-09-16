@@ -23,8 +23,8 @@ compare_value_int() {
             result=$(echo "$value1 > $value2" | bc)
             ;;
         *)
-            echo "Invalid operator"
-            exit 1
+            $PRINT_ERROR 202 "Invalid operator in compare_value_int()"
+            exit 202
             ;;
     esac
 
@@ -118,8 +118,8 @@ conditional_find() {
     if [[ "${#matching_files[@]}" -gt 0 ]]; then
         FILES=("${matching_files[@]}")
     else
-        $PRINT_ERROR 102 "No matching files found."
-        exit 102
+        $PRINT_ERROR 404 "No matching files found."
+        exit 404
     fi
 }
 
@@ -128,8 +128,8 @@ conditional_find() {
 
 # check $1 is a valid path
 [ -d "$1" ] || {
-    $PRINT_ERROR 101 "Invalid Path: $2"
-    exit 101
+    $PRINT_ERROR 405 "Invalid Path: $2"
+    exit 405
 }
 
 # perform the find operation and manually store results in an array
@@ -140,8 +140,8 @@ done < <(find "$1" -maxdepth 1 -iname '*.fit*')
 
 # ensure enough parameters are passed
 [ -n "$2" ] && [ -n "$3" ] || {
-    $PRINT_ERROR 105 "Missing Find Parameters"
-    exit 105
+    $PRINT_ERROR 101 "Missing Arguments: upload find"
+    exit 101
 }
 
 

@@ -16,11 +16,11 @@ CHECK_MISSING () {
 	# false = warning. just show missing
 
 	if [ $2 = true ]; then
-		echo -e "\033[31mError 401:\033[0m $1 is not installed."
+		echo -e "\033[31mError 400:\033[0m $1 is not installed."
 		echo "Please install \"$1\" to proceed and make sure it's in \$PATH"
 		exit 1;
 	else
-		echo -e "\033[33mWarning 401:\033[0m $1 is not installed."
+		echo -e "\033[33mWarning 400:\033[0m $1 is not installed."
 		echo "Program usage is limited due to missing package: \"$1\""
 	fi
 }
@@ -120,7 +120,7 @@ if [ -d "$INSTALL_PATH" ]; then
 
 	for file in "${scripts[@]}"; do
 		if [ ! -f "$INSTALL_PATH/$file" ]; then
-			echo -e "\033[31mError 400:\033[0m Installation appears to be broken."
+			echo -e "\033[31mError 200:\033[0m Installation appears to be broken."
 			echo "Fixing install... this should only take a moment."
 			INSTALL_STREAK
 		fi
