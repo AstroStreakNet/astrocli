@@ -7,8 +7,6 @@
 package cmd
 
 import (
-    "os"
-    "fmt"
     "strings"
     "github.com/BurntSushi/toml"
 )
@@ -56,24 +54,24 @@ func isItTrue( aValue string ) bool {
 }
 
 func makeRequest( aFilePath *string, aFileData Properties ) {
-    fmt.Printf( "Uploading %s\n", *aFilePath )
+    PrintDebug( "Uploading ", *aFilePath )
 
-    if ( isItTrue(aFileData.AllowAITraining) ) {
-        fmt.Println( "Can train AI" )
+    if ( isItTrue( aFileData.AllowAITraining ) ) {
+        PrintDebug( "Can train AI" )
     }
 
     if ( isItTrue( aFileData.PublicView ) ) {
-        fmt.Println( "Public can view" )
+        PrintDebug( "Public can view" )
     }
 
-    fmt.Printf( "Telescope: %s\n", aFileData.Telescope )
-    fmt.Printf( "Observatory Code: %s\n", aFileData.ObservatoryCode )
-    fmt.Printf( "Right Ascension: %s\n", aFileData.RightAscension )
-    fmt.Printf( "Declination: %s\n", aFileData.Declination )
-    fmt.Printf( "Julian Date: %s\n", aFileData.JulianDate )
-    fmt.Printf( "Exposure Duration: %s\n", aFileData.ExposureDuration )
-    fmt.Printf( "Streak Type: %s\n", aFileData.StreakType )
-    fmt.Println( "--------------------------" )
+    PrintDebug( "Telescope: ", aFileData.Telescope )
+    PrintDebug( "Observatory Code: ", aFileData.ObservatoryCode )
+    PrintDebug( "Right Ascension: ", aFileData.RightAscension )
+    PrintDebug( "Declination: ", aFileData.Declination )
+    PrintDebug( "Julian Date: ", aFileData.JulianDate )
+    PrintDebug( "Exposure Duration: ", aFileData.ExposureDuration )
+    PrintDebug( "Streak Type: ", aFileData.StreakType )
+    PrintDebug( "--------------------------" )
 }
 
 
@@ -82,17 +80,12 @@ func makeRequest( aFilePath *string, aFileData Properties ) {
 func StreakUpload( aTOMLfile string ) {
     var lConfig Config
     if _, err := toml.DecodeFile( aTOMLfile, &lConfig ); err != nil {
-        fmt.Fprintf( os.Stderr,
-            "\033[31mError 102:\033[0m Decoding TOML file.\n%v\n", err )
-
+        PrintError( 102, "Decoding .toml file.", err )
         return
     }
 
     // Get the default properties
-    lDefaults, err := lConfig.Properties["default"]
-    if err {
-        fmt.Fprintf( os.Stderr, "\033[34mWarning 102:\033[0m%v\n", err )
-    }
+    lDefaults, _ := lConfig.Properties["default"]
 
     // Iterate over the properties, skipping the default one
     for lPath, lValues := range lConfig.Properties {

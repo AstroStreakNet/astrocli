@@ -23,6 +23,7 @@ report_dialogue() {
 
 # 100 Invalid Arguments Passed / Invalid Usage
 # 101 Missing Arguments
+# 102 TOML error
 
 # 200 Broken Install
 # 201 Invalid Script Call
@@ -62,6 +63,15 @@ case "$1" in
     echo -e "\
     ======== "
 ;;
+
+
+"102")
+    error_code 102 "Invalid .toml Syntax"
+    echo "
+    This is likely caused by a syntax error or invalid formatting in the .toml
+    file. Please review the file and ensure it conforms to the TOML format
+    specification."
+    ;;
 
 
 
@@ -119,7 +129,7 @@ case "$1" in
 
 
 
-# 3xx --------------------------------------------------------------------------
+# 3xx -WEB-SERVER-TALK----------------------------------------------------------
 
 
 

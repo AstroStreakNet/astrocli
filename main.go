@@ -11,8 +11,7 @@ func main() {
     // those actions.
 
     if len(os.Args) < 2 {
-        fmt.Fprintf( os.Stderr,
-            "\033[31mError 203:\033[0m Called without arguments.\n" )
+        cmd.PrintError( 203, "Called without arguments." )
         return
     }
 
@@ -20,9 +19,7 @@ func main() {
         case "upload": cmd.StreakUpload( os.Args[2] );
 
     default:
-        fmt.Fprintf( os.Stderr,
-            "\033[31mError 203:\033[0m Unknown command: \n", os.Args[1] )
-
+        cmd.PrintError( 203, fmt.Sprintf("Unknown Value: %v", os.Args[1]) )
     }
 }
 
