@@ -115,6 +115,7 @@ if [ -d "$INSTALL_PATH" ]; then
 	scripts=(
 		"gobinary" # program binary
 		"debug.sh" "print.sh" "grepfind.sh" "upload.sh"
+        "bin/streak" "bin/streaku"
 	)
 
 	for file in "${scripts[@]}"; do
