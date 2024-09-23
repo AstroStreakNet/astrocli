@@ -1,10 +1,11 @@
+
+package cmd
+
 /*
  * Upload.Go
  *
  * Parse .toml file and upload images to the server.
  */
-
-package cmd
 
 import (
     "strings"
@@ -14,7 +15,7 @@ import (
 
 //- Data Structures ------------------------------------------------------------
 
-type Properties struct {
+type UploadData struct {
     Telescope        string `toml:"Telescope"`
     ObservatoryCode  string `toml:"ObservatoryCode"`
     RightAscension   string `toml:"RightAscension"`
@@ -26,8 +27,8 @@ type Properties struct {
     StreakType       string `toml:"StreakType"`
 }
 
-type Config struct {
-    Properties map[string]Properties `toml:"properties"`
+type UploadProperties struct {
+    UploadData map[string]UploadData `toml:"properties"`
 }
 
 
@@ -53,8 +54,9 @@ func isItTrue( aValue string ) bool {
 	return true
 }
 
-func makeRequest( aFilePath *string, aFileData Properties ) {
+func makeRequest( aFilePath *string, aFileData UploadData ) {
     PrintDebug( "Uploading ", *aFilePath )
+        PrintDebug("Working makeRequest")
 
     if ( isItTrue( aFileData.AllowAITraining ) ) {
         PrintDebug( "Can train AI" )
@@ -78,22 +80,22 @@ func makeRequest( aFilePath *string, aFileData Properties ) {
 //- Function Call --------------------------------------------------------------
 
 func StreakUpload( aTOMLfile string ) {
-    var lConfig Config
+    var lConfig UploadProperties
     if _, err := toml.DecodeFile( aTOMLfile, &lConfig ); err != nil {
         PrintError( 102, "Decoding .toml file.", err )
         return
     }
 
     // Get the default properties
-    lDefaults, _ := lConfig.Properties["default"]
+    lDefaults, _ := lConfig.UploadData["default"]
 
     // Iterate over the properties, skipping the default one
-    for lPath, lValues := range lConfig.Properties {
+    for lPath, lValues := range lConfig.UploadData {
         if lPath == "default" {
             continue
         }
 
-        makeRequest( &lPath, Properties {
+        makeRequest( &lPath, UploadData {
             Telescope       : overrideDefault(
                 &lValues.Telescope, &lDefaults.Telescope),
 
