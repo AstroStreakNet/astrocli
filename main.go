@@ -18,7 +18,7 @@ func main() {
     switch os.Args[1] {
         case "upload": cmd.StreakUpload( os.Args[2] );
 
-    default:
+        default:
         cmd.PrintError( 203, fmt.Sprintf("Unknown Value: %v", os.Args[1]) )
     }
 }

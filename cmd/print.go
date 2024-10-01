@@ -16,7 +16,7 @@ func PrintError( aCode int, aPrompt string, aError ...error ) {
 
 func PrintWarning( aCode int, aPrompt string, aWarning ...error ) {
     fmt.Fprintf( os.Stderr,
-        "\033[33mWarning %v:\033[0m %v\n%v\n", aCode, aPrompt )
+        "\033[33mWarning %v:\033[0m %v\n", aCode, aPrompt )
 
     for _, warn := range aWarning {
         fmt.Println( warn )
@@ -31,4 +31,5 @@ func PrintDebug( aPrompt ...string ) {
     }
     fmt.Println( " " )
 }
+
 
