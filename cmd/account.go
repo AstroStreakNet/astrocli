@@ -1,70 +1,84 @@
+
 package cmd
+
+/* Account.Go
+ *
+ * Manage AstroStreaknet account and session.
+ */
 
 import (
     "os"
+	"strings"
+    "bytes"
     "fmt"
-    "golang.org/x/term"
-    "github.com/spf13/cobra"
-    "github.com/fatih/color"
+    "net/http"
+    "net/url"
 )
 
-// accountCmd represents the account command
-var accountCmd = &cobra.Command{
-    Use:   "account",
-    Short: "Manage your AstroStreak account status",
+const URL = "http://localhost:8080";
 
-    Run: func(cmd *cobra.Command, args []string) {
-		// if both --login and --logout flags are used together, the utility
-		// will prioritise --login and will override existing account details
-		// with new ones.
-	
-		if login {
-		    loginPrompt()
-		} else if logout {
-		    logoutAction()
-		}
-    },
-}
 
-func init() {
-    rootCmd.AddCommand(accountCmd)
+//- Helper ---------------------------------------------------------------------
 
-    accountCmd.Flags().BoolVarP(&login,
-		"login", "i",
-		false,
-		"login into your account",
+func signIn( aUsername, lPassword *string ) ( *http.Client, error ) {
+    lClient := &http.Client{}
+    lData := url.Values{}
+
+    lData.Set( "username", *aUsername )
+    lData.Set( "password", *lPassword )
+
+    // create the POST request
+    lRequest, lError := http.NewRequest( "POST", ( URL + "/login" ),
+        bytes.NewBufferString( lData.Encode() ),
     )
-
-    accountCmd.Flags().BoolVarP(&logout,
-		"logout", "o",
-		false,
-		"logout from your account",
-    )
-}
-
-func loginPrompt() {
-    yellow := color.New(color.FgHiYellow).SprintFunc()
-
-    var username string 
-    fmt.Printf("%s: ", yellow("username"))
-    fmt.Scanln(&username)
-
-    fmt.Printf("%s: ", yellow("password"))
-    password, err := term.ReadPassword(int(os.Stdin.Fd()))
-
-    if err != nil {
-		fmt.Println("Error reading password:", err)
-		return
+    if lError != nil {
+        return nil, lError
     }
-    fmt.Println("")
-    
-    fmt.Printf("entered password is %s\n", password)  // just for testing
+
+    // set the Content-Type header to application/x-www-form-urlencoded
+    lRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+    // send the request
+    lResponse, lError := lClient.Do(lRequest)
+    if lError != nil {
+        return nil, lError
+    }
+    defer lResponse.Body.Close()
+
+    // check if login was successful (usually status code 200)
+    if lResponse.StatusCode != http.StatusOK {
+        return nil, fmt.Errorf("Authentication Error. %v", lResponse.StatusCode)
+    }
+    PrintDebug( "Login Successful" )
+
+    // return the HTTP client to use for subsequent requests (keeps the session)
+    return lClient, nil
 }
 
-func logoutAction() {
-    red := color.New(color.FgRed).SprintFunc()
 
-    fmt.Printf("%s", red("logout\n"))
-    // add logout action here
+//- Function Calls -------------------------------------------------------------
+
+func StreakLogin ( aCredFile string ) ( *http.Client, error ) {
+    data, err := os.ReadFile(*&aCredFile)
+	if err != nil {
+	}
+
+	// Split the data into username and hashed password
+	credentials := strings.Split(string(data), ":")
+	if len(credentials) != 2 {
+		fmt.Println("Invalid credentials file format")
+	}
+
+    PrintDebug( "Username  = ", credentials[0] )
+    PrintDebug( "Password  = ", credentials[1] )
+
+    // get session if login is successful
+    lSession, lError := signIn( &credentials[0], &credentials[1] )
+    if lError != nil {
+        PrintError( 300, "Login Fail.", lError )
+        return nil, lError
+    }
+
+    return lSession, nil
 }
 

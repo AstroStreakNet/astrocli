@@ -167,6 +167,10 @@ case "$CMD" in
 		"$INSTALL_PATH/download.sh" "${ARGS[@]}"
 		;;
 
+    "account" | "a")
+		"$INSTALL_PATH/account.sh" "${ARGS[@]}"
+        ;;
+
 	"debug" | "x" | "whatis")
 		"$INSTALL_PATH/debug.sh" "${ARGS[@]}"
 		;;
