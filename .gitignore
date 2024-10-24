@@ -11,3 +11,5 @@ sample/
 opt/bin/
 **/gobinary
 
+opt/.cred
+

@@ -32,6 +32,11 @@ report_dialogue() {
 # 204 Failure Binary Internals
 # 205 Invalid Internal Path
 
+# 300 Cant connect to the internet
+# 301 Unable to make POST request
+# 301 Unable to make request
+# 303 Failed to log in
+
 # 400 Missing System Packages
 # 403 No files selected.
 # 404 File trying to upload doesn't exist
