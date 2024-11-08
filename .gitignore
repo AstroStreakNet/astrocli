@@ -8,5 +8,8 @@ go.sum
 bin/
 test/
 sample/
-opt/bin
+opt/bin/
+**/gobinary
+
+opt/.cred
 

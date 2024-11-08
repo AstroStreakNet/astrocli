@@ -5,11 +5,6 @@
 
 # helper -----------------------------------------------------------------------
 
-help_dialogue() {
-    echo -e "# print usage example"
-
-}
-
 touch_toml() {
     local save_path="/tmp"
     [ -d "$save_path" ] || {
@@ -28,28 +23,7 @@ touch_toml() {
         local toml_file="$save_path/streak_buffer.toml"
     fi
 
-    echo "#
-# This buffer file is saved at $save_path. PLEASE DONT DELETE IT MANUALLY!
-# It will be deleted after use, unless the program was ^C
-#
-
-# Fill default with properties common for all uploads
-[properties.default]
-Telescope           = \"\" # TELESCOP
-ObservatoryCode     = \"\" # OBSID
-RightAscension      = \"\" # RA
-Declination         = \"\" # DEC
-JulianDate          = \"\" # JD
-ExposureDuration    = \"\" # EXPOSURE
-StreakType          = \"\" # eg:
-                         # \"Cosmic Ray\", \"Resident Space Object\",
-                         # \"Near Earth Object\", \"Detector Artifact\"
-                         # or any other
-
-
-# Leave properties empty to use default values
-# New values here would be prioritised" > $toml_file
-
+    $PRINT "TOML_TOUCH" "$save_path" > $toml_file
     echo $toml_file
 }
 
@@ -76,13 +50,15 @@ generate_toml() {
         file_path="$(pwd)${file_path:1}"
     fi
 
-    echo "[properties.$file_path]
+    echo "[properties.\"$file_path\"]
 Telescope			= \"$(get_value 'TELESCOP')\"
 ObservatoryCode		= \"$(get_value 'OBSID')\"
 RightAscension		= \"$(get_value 'RA')\"
 Declination			= \"$(get_value 'DEC')\"
 JulianDate			= \"$(get_value 'JD')\"
 ExposureDuration	= \"$(get_value 'EXPOSURE')\"
+PublicView          = \"\"
+AllowAITraining     = \"\"
 StreakType			= \"\"
 " >> $toml_file
 
@@ -92,9 +68,9 @@ StreakType			= \"\"
 # helper -----------------------------------------------------------------------
 
 [ -n "$1" ] || {
-    $PRINT_ERROR 104 "Missing Arguments"
-    help_dialogue
-    exit 1
+    $PRINT "ERROR" 101 "Missing Arguments: upload"
+    $PRINT "HELP_UPLOAD"
+    exit 101
 }
 
 
@@ -103,33 +79,38 @@ StreakType			= \"\"
 case $1 in
 
 "help")
-    help_dialogue
+    $PRINT "HELP_UPLOAD"
 ;;
 
 "find")
+    FILES=()
     TOML_FILE=$(touch_toml)
     if [ -z "$TOML_FILE" ]; then
-        $PRINT_ERROR 204 "Unable to create buffer. Tried /tmp & $HOME"
-        exit 204
+        $PRINT "ERROR" 205 "Unable to create buffer. Tried /tmp & $HOME"
+        exit 205
     fi
 
     # narrow results with fzf
     if [[ "$(echo "$2" | tr '[:upper:]' '[:lower:]')" == "fzf" ]]; then
-        IFS=' ' read -r -a buffer <<< $("$INSTALL_PATH/grepfind.sh" "${@:3}")
-        IFS=' ' read -r -a FILES <<< $(
-            for file in "${buffer[@]}"; do
-                echo "$file"
-            done | fzf --multi | tr '\n' ' '
-        )
+        while IFS= read -r line; do
+            FILES+=("$line")
+        done < <("$INSTALL_PATH/grepfind.sh" "${@:3}" | fzf --multi)
 
         if [ -z "$FILES" ]; then
-            echo "No selection made"
-            exit
+            $PRINT "EROR" 403 "No selection made."
             rm $TOML_FILE
+            exit 403
         fi
 
     else
-        IFS=' ' read -r -a FILES <<< $("$INSTALL_PATH/grepfind.sh" "${@:2}")
+        while IFS= read -r line; do
+            FILES+=("$line")
+        done < <("$INSTALL_PATH/grepfind.sh" "${@:2}")
+
+        if [ -z "$FILES" ]; then
+            rm $TOML_FILE
+            exit 404
+        fi
     fi
 
     for file in "${FILES[@]}"; do
@@ -138,7 +119,7 @@ case $1 in
 
     $EDITOR "$TOML_FILE"
 
-    # $BIN $TOML_FILE
+    $BIN "upload" "$TOML_FILE"
     rm $TOML_FILE
 ;;
 
@@ -146,25 +127,29 @@ case $1 in
 *)
     TOML_FILE=$(touch_toml)
     if [ -z "$TOML_FILE" ]; then
-        $PRINT_ERROR 204 "Unable to create buffer. Tried /tmp & $HOME"
+        $PRINT "ERROR" 204 "Unable to create buffer. Tried /tmp & $HOME"
         exit 204
     fi
 
-    for file in "${@:2}"; do
-        if [ -e "$file" ]; then
+    for file in "${@:1}"; do
+        if [ -f "$file" ]; then
             generate_toml "$file" "$TOML_FILE"
+
+        elif [ -d "$file" ]; then
+            $PRINT "WARN" 406 "\"$file\" appears to be a directory. Skipping."
+
         else
-            echo "The file $file does not exist. Skipping."
+            $PRINT "WARN" 404 "File \"$file\" does not exist. Skipping."
         fi
     done
 
     line_count=$(wc -l < "$TOML_FILE")
-    if (( line_count > 21 )); then
+    if (( line_count > 23 )); then
         $EDITOR "$TOML_FILE"
-        # $BIN $TOML_FILE
+        $BIN "upload" "$TOML_FILE"
 
     else
-        echo "invalid"
+        $PRINT "ERROR" 404 "No files found."
     fi
 
     rm $TOML_FILE

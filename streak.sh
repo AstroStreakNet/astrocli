@@ -6,7 +6,7 @@
 #- HELPER FUNCTIONS ------------------------------------------------------------
 
 export INSTALL_PATH="/opt/streak"
-export BIN="$INSTALL_PATH/bin"
+export BIN="$INSTALL_PATH/gobinary"
 
 CHECK_MISSING () {
 	command -v "$1" > /dev/null 2>&1 && return
@@ -16,11 +16,11 @@ CHECK_MISSING () {
 	# false = warning. just show missing
 
 	if [ $2 = true ]; then
-		echo -e "\033[31mError 401:\033[0m $1 is not installed."
+		echo -e "\033[31mError 400:\033[0m $1 is not installed."
 		echo "Please install \"$1\" to proceed and make sure it's in \$PATH"
 		exit 1;
 	else
-		echo -e "\033[33mWarning 401:\033[0m $1 is not installed."
+		echo -e "\033[33mWarning 400:\033[0m $1 is not installed."
 		echo "Program usage is limited due to missing package: \"$1\""
 	fi
 }
@@ -113,14 +113,14 @@ CHECK_MISSING "fzf"  false
 # check installation path
 if [ -d "$INSTALL_PATH" ]; then
 	scripts=(
-		"bin" # program binary
-		"debug.sh" "print.sh" "grepfind.sh"         # more control
-		"upload.sh" "download.sh" "browse.sh"       # binary wrapper
+		"gobinary" # program binary
+		"debug.sh" "print.sh" "grepfind.sh" "upload.sh"
+        "bin/streak" "bin/streaku"
 	)
 
 	for file in "${scripts[@]}"; do
 		if [ ! -f "$INSTALL_PATH/$file" ]; then
-			echo -e "\033[31mError 400:\033[0m Installation appears to be broken."
+			echo -e "\033[31mError 200:\033[0m Installation appears to be broken."
 			echo "Fixing install... this should only take a moment."
 			INSTALL_STREAK
 		fi
@@ -135,41 +135,53 @@ fi
 
 # script calls very commonly required in various different scripts
 
-export PRINT_ERROR="$INSTALL_PATH/print.sh ERROR"
-export PRINT_WARNING="$INSTALL_PATH/print.sh WARN"
+export PRINT="$INSTALL_PATH/print.sh"
 
 
 #- RUN STREAK ------------------------------------------------------------------
 
 CMD=$1
+ARGS=()
 shift
-ARGS="$@"
-if [ ! -t 0 ]; then ARGS+=" $(xargs)"; fi
+
+for argument in "${@}"; do
+    ARGS+=("$argument")
+done
+
+if [ ! -t 0 ]; then
+    while IFS= read -r result; do
+        ARGS+=("$result")
+    done
+fi
 
 case "$CMD" in
 	"--help" | "-h" | "help")
-		"$INSTALL_PATH/print.sh" "PROMPT_HELP"
+		"$INSTALL_PATH/print.sh" "HELP_STREAK"
 		;;
 
 	"upload" | "u")
-		"$INSTALL_PATH/upload.sh" $ARGS
+		"$INSTALL_PATH/upload.sh" "${ARGS[@]}"
 		;;
 
-	"browse" | "b")
-		"$INSTALL_PATH/browse.sh" $ARGS
+    "download" | "d")
+		"$INSTALL_PATH/download.sh" "${ARGS[@]}"
 		;;
 
-	"download" | "d")
-		"$INSTALL_PATH/download.sh" $ARGS
-		;;
+    "account" | "a")
+		"$INSTALL_PATH/account.sh" "${ARGS[@]}"
+        ;;
 
 	"debug" | "x" | "whatis")
-		"$INSTALL_PATH/debug.sh" $ARGS
+		"$INSTALL_PATH/debug.sh" "${ARGS[@]}"
 		;;
 
+    "")
+		"$INSTALL_PATH/print.sh" "HELP_STREAK"
+        ;;
+
 	*)
-		$PRINT_ERROR 100 "Invalid usage $CMD"
-		"$INSTALL_PATH/print.sh" "PROMPT_HELP"
+		$PRINT "ERROR" 100 "Invalid usage $CMD"
+		"$INSTALL_PATH/print.sh" "HELP_STREAK"
 		;;
 esac
 

@@ -3,6 +3,7 @@ module github.com/AstroStreakNet/streak
 go 1.21.9
 
 require (
+	github.com/BurntSushi/toml v1.4.0
 	github.com/fatih/color v1.16.0
 	github.com/spf13/cobra v1.8.0
 	golang.org/x/term v0.19.0
